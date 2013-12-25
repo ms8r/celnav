@@ -16,7 +16,7 @@ __revision__ = "$Id: celnav.py,v 1.16 2013/08/16 11:45:25 markus Exp markus $"
 
 # import standard libraries
 from math import *
-import time
+# import time
 import datetime as dt
 import os
 import re
@@ -186,9 +186,8 @@ class Sight(classprint.AttrDisplay):
         self.Hs = Angle(Hs)         # sextant altitude
         self.Ha = Angle()           # apparent altitude
         if UT == None:              # set to current UT, ignoring weekday, yearday and DST
-            self.UT = time.gmtime()[0:6]    
-        else:
-            self.UT = UT
+            UT = dt.datetime.utcnow().timetuple()[:6]
+        self.UT = UT
 
         self.Ic = Ic                # Intercept in nm
         self.srfIc = Ic             # Ic corrected for short run fix (based on vessel SOG, COG)
@@ -382,7 +381,7 @@ class LOP(classprint.AttrDisplay):
 
             # calculate short-run fix intercept, corrected for MOO:
             # calculate difference between fix and sight times:
-            dT = dt.datetime(*self.fix.UT) - dt.datetime(*s.UT)      # as dt.timedelta
+            dT = dt.datetime(*self.fix.UT) - dt.datetime(*s.UT) # as dt.timedelta
             dT_hrs = dT.days * 24 + dT.seconds / 3600.0         # in hours
 
             # now calculate MOO corrected Intercept based on Fix SOG/COG 
@@ -403,10 +402,10 @@ class Fix(classprint.AttrDisplay):
     Also initializes lopList as []
     """
     def __init__(self, SOG = 0, COG = 0, UT = None, lat = 0, lon = 0):
+
         if UT == None:
-            self.UT = time.gmtime()[0:6]    # set to current UT, ignoring weekday, yearday and DST
-        else:
-            self.UT = UT
+            UT = dt.datetime.utcnow().timetuple()[:6]
+        self.UT = UT
 
         self.SOG = float(SOG)
         self.COG = Angle(COG)
@@ -1310,14 +1309,13 @@ def normAngle(angle):
 def ghaAries(ut):
     """Returns GHA Aries for ut (Y, M, D, h, m, s) as degrees incl. decimal fraction
     """
-    t = dt.datetime(*ut)
+    st = Angle()
+    utcz = ephem.Observer()
+    utcz.lon = 0
+    utcz.date = ut
+    st.rad = utcz.sidereal_time()
 
-    utHrs = t.hour + t.minute/60.0 + t.second/3600.0
-
-    # Original formula from Henning Umlandt's celnav consistently comes up
-    # ~0.2' short (about 0.8 sec difference in UT) vis-a-vis 2012 NA
-    # return normAngle(0.9856474 * bigT(ut) + 15 * utHrs + 100.46062)
-    return normAngle(0.9856474 * bigT(ut) + 15 * utHrs + 100.46362)
+    return st.decD
 
 
 def sha(ra):
