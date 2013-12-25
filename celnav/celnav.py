@@ -10,9 +10,9 @@ executable must be specified in constant AA_EXE_FILE below, and the path to the
 aa star catalogue file mus be specified in AA_STAR_CAT_FILE below.
 """
 
-__author__ = "markus@namaniatsea.net"
-__version__ = "0.2.0"
-__revision__ = "$Id: celnav.py,v 1.14 2013/08/02 06:18:49 markus Exp markus $"
+__author__ = "markus@namaniatsea.org"
+__version__ = "0.2.1"
+__revision__ = "$Id: celnav.py,v 1.16 2013/08/16 11:45:25 markus Exp markus $"
 
 # import standard libraries
 from math import *
@@ -372,6 +372,11 @@ class LOP(classprint.AttrDisplay):
                                             # it comparable to observed Ha
                     else:
                         Hc.rad -= e.radius  # same logic for lower limb sight
+                                            # Note: this radius is topocentric since the 
+                                            # intercept calculation is done with all topo-
+                                            # centric values. The value of e.radius will 
+                                            # will differ from the SD value listed in the 
+                                            # NA (geocentric).
 
             s.Ic = (s.Ha.decD - Hc.decD) * 60
 
@@ -651,7 +656,10 @@ class SunMoonRiseSet(classprint.AttrDisplay):
             localUTnoon = gn + ma
 
             eot = dt.datetime(*self.sunData['mer_pass']) - localUTnoon  # dt.timedelta object
-            eot = eot.total_seconds()                                   # seconds as float
+            # NOTE: Python 2.6 doesn't provide dt.timedelta.total_seconds 
+            # -> revert to manual calculation
+            # eot = eot.total_seconds()                                   # seconds as float
+            eot = eot.microseconds / 1e6 + eot.seconds + eot.days * 24 * 3600
             eot_min = int(abs(eot) / 60)
             self.sunData['eot'] = (eot_min, int(round(abs(eot)-eot_min*60)), eot/abs(eot))  # (min, sec, sign)
         else:
@@ -697,9 +705,13 @@ class SunMoonRiseSet(classprint.AttrDisplay):
             self.sunData['twl_naut_pm'] = None
 
         # semidiamter (at local noon):
-        self.sun.compute(self.observer)
+        # self.sun.compute(self.observer)
+        # changed to get geocentric SD:
+        self.sun.compute(self.observer.date)
         self.sunData['sd'] = Angle(self.sun.radius * 180 / pi)
-        self.moon.compute(self.observer)
+        # self.moon.compute(self.observer)
+        # changed to get geocentric SD:
+        self.moon.compute(self.observer.date)
         self.moonData['sd'] = Angle(self.moon.radius * 180 / pi)
 
         # move observer.date back to local midnight
