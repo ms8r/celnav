@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+ <html xmlns="http://www.w3.org/1999/xhtml">
+
+ <head>
+
+ <!-- $Id: fix_method.html,v 1.1 2013/08/02 02:41:46 markus Exp markus $ -->
+
+ <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+ <link type="text/css" rel="stylesheet" href="stylesheet.css" />
+ <title>CelNav - Celestial Navigation for Cruisers</title>
+
+ </head>
+
+ <body>
+     
+ <div class="pagebanner">
+ <div id="prevNextContainer">
+     <li id="toc"><a href="index.html#toc"><span class="banner_text">Table of Contents</span></a></li>
+     <!--
+     <li id="nx"><a href="http://navigatrix.net">Navigatrix home</a></li>
+    -->
+ </div>
+ </div>
+
+ <h1 id="sec_fix_philosophy">Fix Philosophy in CelNav</h1>
+
+<p>Traditional lore has it that to get a good fix from celestial sights you should have "Lines of Position" (LOPs) from at least 3, better 4 or more different stars and/or planets. While the crossing of 2 LOPs would already provide a fix, the argument for taking more sights has been that you can't be too sure of the accuracy of your measured sextant altitudes and therefore more is better (resulting in the infamous "cocked hat"). That never made much sense to me for two reasons:</p>
+
+<ol>
+    <li> If the accuracy of my altitude measurement is questionable (as is certainly the case for me) then what does it help to just add "more garbage" to the pile? The traditional arguments goes on to say that you can identify outliers from plotting sights taken from many different stars. However, in many "cocked hat" examples correctly identifying the outlier sight(s) is far from obvious and picking your most likely position inside (and in some cases outside) the cocked hat ends up being mere guess work. (Disclaimer: This is obviously different if you're an expert navigator with a few thousand sights under your belt - however in this case the accuracy of each if your individual sights is probably pretty high, even under adverse conditions).</li>
+
+    <li> On a smallish sailboat like ours (35ft) I'm hard pressed to find more than two (three if I'm lucky) of the 57 navigational stars plus planets that are simultaneously (a) visible at twilight, (b) not obscured by clouds, sails, rigging, radar post, wind vane self steering and all that other stuff that accumulates on cruising boats, and (c) provide decent crossing angles of their LOPs (i.e. something between say 45° and 135°).</li>
+
+</ol>
+
+<p>The approach that CelNav takes to tackle these issues is to take sights of only two bodies but to be smart about making the LOPs derived from each body's observation as accurate as possible. The method is simply to take an uneven number of sights of each of the two bodies (5 each works very well), have CelNav calculate the intercepts for all of the sights at the press of a button, and then pick the sight with the *median* intercept out of each sight series as a basis for the fix calculation as a simple way to eliminate outliers.</p>
+
+<p>Five sights each for two bodies may sound like a lot but is actually quite easy and quick. Since you stick with the same star for each sight series you don't have to reset the sextant and bring the body down to the horizon every time. Nor do you have to change your position and/or orientation. And since the software does the number crunching it's all a question of minimizing data entry.</p>
+
+<p>This approach of taking the median intercepts out of two sight series has reliably worked well for me in over a hundred fixes by now. I'm by no means an expert navigator but I get 80% of my fixes within 4nm of my GPS position and 97% within 10nm (12.3nm was the worst performer). And it works well even in 3+ meter seas (the spread in intercepts per series increases with higher sea states, but the median remains surprisingly robust).</p>
+
+<p>In addition the procedure provides valuable insights for improving ones technique of taking sights. Since I get near-immediate feedback about the quality of each sight I can actually see what works best. With a bit more data analysis it becomes quite easy to see whether my sights tend to be "high" or "low" rather than randomly scattered around the "right" value. If there is no other error source (index error, corrections, ...) it must be me and I can start to correct for that systematic error. Remember - you have all your sight and fix data in the log file - ready to be mangled by some spreadsheet...</p>
+
+ <hr /> <div id="prevNextContainer">
+ <li id="prev"><a href="03_usage.html">&lt;&lt; back</a></li>
+</div>
+
+</body>
+
+ </html> 

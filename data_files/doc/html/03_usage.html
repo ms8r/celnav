@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+ <html xmlns="http://www.w3.org/1999/xhtml">
+
+ <head>
+
+ <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+ <link type="text/css" rel="stylesheet" href="stylesheet.css" />
+ <title>CelNav - Celestial Navigation for Cruisers</title>
+
+ </head>
+
+ <body>
+
+ <div class="pagebanner">
+ <div id="prevNextContainer">
+     <li id="toc"><a href="index.html#toc"><span class="banner_text">Table of Contents</span></a></li>
+ <!--
+ <li id="nx"><a href="http://navigatrix.net">Navigatrix home</a></li>
+ -->
+ </div>
+ </div>
+
+ <h1 id="sec_usage">Using CelNav</h1>
+
+ <p> Using CelNav should be straight forward. The application will launch with three tabs and a minimal menu bar with <span class="menu_item">File</span> and <span class="menu_item">Help</span> entries:
+ </p>
+
+ <p class="centered"><img src="images/almanac_tab.gif" widht="800" height="438" alt="CelNav Application" /></p>
+
+ <p>Please see the sections below for details on:
+ </p>
+ <ul>
+     <li>The <a href="03_usage.html#subsec_almanac"><span class="menu_item">Alamanc</span> tab</a>
+     </li>
+     <li>The <a href="03_usage.html#subsec_planetfinder"><span class="menu_item">Planet Finder</span> tab</a>
+     </li>
+     <li>The <a href="03_usage.html#subsec_fix"><span class="menu_item">Sight Reduction & Fix</span> tab</a>
+     </li>
+ </ul>
+
+ <h2 id="subsec_almanac">The Almanac Tab</h2>
+
+ <p class="centered"><img src="images/almanac_tab_numbered.gif" widht="800" height="438" alt="CelNav Almanac Tab" /></p>
+
+ <p> The Almanac Tab essentially shows the data "on the far right" in the Nautiacal Almanac daily pages, i.e. everything that isn't listed hourly: Sun and Moon rise and set, twilight, Moon phase and the equation of time. I've also stuck the semidiamter for Sun and Moon here.
+ </p>
+ <p> A few comments with reference to the numbers in the image above:
+ </p>
+
+ <ol>
+     <li> The UT for which the data is to be calculated. When you launch CelNav this is initialized to the current time. To calculate the times of rise, set, etc. CelNav starts at the local midnight preceding the UT entered in this field and then looks for the next rise, meridian passage, set and associated twilight times. Hence the time of sunrise displayed in (6) will always be before sunset. However, the next moon set may actually occur before the mext moon rise after local midnight.
+     </li>
+
+     <li>Position for which the data is to be calculated. These fields will be initialized with the values of parameters <span class="code">INITIAL_LAT</span> and <span class="code">INITIAL_LON</span> in <a href="02_configuration.html#subsec_ini_file">celnav.ini</a>. If CelNav is running under <a href="http://navigatrix.net">Navigatrix</a>, the values in celnav.ini will automatically be updated prior to launching CelNav with data from /etc/nx.lat and /etc/nx.lon. Under Navigatrix those files record the latest GPS position when a GPS device is connected on a USB port.
+     </li>
+
+     <li> Update Display: Press this button whenever you change any of the input parameters to recalculate the data displayed on this tab.
+     </li>
+
+     <li>Alamanac Page: Pressing this button will generate a "daily page" from the Nautical Almanac for the UT date entered in (1). The page will written as a CSV file and opened in the application defined by the parameter <span class="code">SPREADSHEET_PATH</span> in <a href="02_configuration.html#subsec_ini_file">celnav.ini</a>. By default this the Gnuemeric spreadsheet application that is part of Navigatrix. The output looks like this:
+     </li>
+ </ol>
+
+ <ul class="no_bullet">
+    <li><img src="images/almanac_page_gnumeric.gif" widht="800" height="472" alt="CelNav Almanac Page" />
+    </li>
+
+    <li> The file contains hourly GHA and declination data for Aries, Sun, Moon and navigational planets, plus horizontal parallax data for the moon. Note that up to column O data is provided in degrees with decimal fraction with negative values indicating south declination. This data can used for sorting, filtering or as input to further calculation e.g. in a spreadsheet. From column Q onwards the data is listed in the "human readable" format used in the Nautical Alamanc in case you want to print any of this.
+    </li>
+</ul>
+<ol start="5">
+    <li> Star Data: Pressing this button will generate a page with SHA, declination and magnitude for the 57 navigational stars plus Polaris and display it in Gnumeric or whatvere application has been configured in celnav.ini (see above). In addition the file will contain azimuth and topocentric altitude for each of the stars for the UT and location specified in (1) and (2). As in (4) all angles are provided in degress with decimal fraction as well as in a human readable format.
+    </li>
+</ol>
+
+<ul class="no_bullet">
+    <li><img src="images/star_data_gnumeric.gif" widht="800" height="472" alt="Star Data Page" />
+    </li>
+    <li> In addition the file also contains azimuth and topocentric altitude for each of the stars for the UT and location specified in (1) and (2). This data can be used to pick suitable stars when planning a sight. For example, in Gnumeric you can sort by azimuth, filter on suitable altitude and magnitude, and then pick the stars that will be visible and provide good LOP crossing angles. On a smaller sailboat this will typically only be 2-3 stars as shown in the example below (real data from a recent overnight sail to the island of Fulaga in Fiji):
+    <li>
+    <li><img src="images/star_data_commented.gif" widht="800" height="377" alt="Star Data Commented" />
+    </li>
+</ul>
+
+<ol start="6">
+    <li> Rise, Set, Transit and Twilight times: These values are in UT for the location entered in (2). Semidiamters are in arc minutes.
+    </li>
+    <li> Equation of Time: Expressed as the difference between Greenwich Apparent Time and UT at the time of local noon at the location entered in (2). Negative values indicate the apparent sun being "ahead" of the mean sun (i.e. meridian passage at Greenwich occurs before 1200UT). Note that the EoT value displayed in the iamge above is incorrect as the screenshot was taken before the code was ready... the correct value for the UT and lat/lon above would be 6m 29s.
+    </li>
+    <li> Moon Phase: No surprises here...
+    </li>
+</ol>
+
+
+<h2 id="subsec_planetfinder">The Planet Finder Tab</h2>
+
+This tab provides a quick overview of what planets will be visible at your location at what time:
+
+ <p class="centered"><img src="images/planet_finder_tab_numbered.gif" widht="800" height="438" alt="CelNav Planet Finder Tab" /></p>
+
+ <p>A few comments referring to the numbers in the image above:
+ </p>
+
+ <ol>
+     <li>Date and time in UT: If this time is before local sunrise the chart on this tab will be centered around local midnight of the current night. If UT is after local sunrise the chart will be centered around midnight of following night.
+     </li>
+     <li>Position for which the data is to be calculated. These fields will be initialized with the values of parameters <span class="code">INITIAL_LAT</span> and <span class="code">INITIAL_LON</span> in <a href="02_configuration.html#subsec_ini_file">celnav.ini</a>. If CelNav is running under <a href="http://navigatrix.net">Navigatrix</a>, the values in celnav.ini will automatically be updated prior to launching CelNav with data from /etc/nx.lat and /etc/nx.lon. Under Navigatrix those files record the latest GPS position when a GPS device is connected on a USB port.
+     </li>
+     <li>You guessed it: don't forget to press this to have any changes in input data be reflected in the chart.
+     </li>
+     <li>The Gantt chart: yellow bars indicate the times where the body is above the horizon at the given lat/lon. The light grey shading indicates twilight, the darker grey shading night. The chart will always be centered around local midnight with the hour grid labeled in UT. 
+     </li>
+     <li> Amplitude and Altitude at local meridian passage: This data is provided to more easily locate the planet and to to judge how suitable it is for a fix. "Amplitude" indicates how far off true East the body rises and how far off true west it sets.  For example a value of "N24°" would indicate that the body's azimuth at rise is 90° - 24° = 66° and that it sets at 270° + 24° = 294° (opposite signs for south amplitude).
+     </li>
+ </ol>
+
+
+ <h2 id="subsec_fix">The Sight Reduction &amp; Fix Tab</h2>
+
+ <p>While the sight reduction functionality in CelNav can be used in any way that suits the user, this tab has been designed to specifically support a celestial fix from LOPs taken in close succession from different bodies on a small boat. Read <a href="fix_method.html">here</a> about the idea behind it. 
+ 
+ <p>When you launch CelNav the "Sight Reduction &amp; Fix" tab will open with one LOP and one Sight for that LOP. 
+ </p> 
+
+ <p class="centered"><img src="images/fix_tab.gif" widht="800" height="438" alt="CelNav Planet Finder Tab" /></p>
+
+ <p>LOPs and Sights can be added via “+” buttons. A fully populated fix may look like this (note that this screenshot was taken with a previous version of CelNav but this tab looks the same in the current version except for the title):
+ </p>
+
+ <p class="centered"><img src="images/fix_tab_full_numbered.gif" widht="800" height="410" alt="CelNav Planet Finder Tab" /></p>
+
+ <p> A few comments again referring ot the numbers in the image above:
+ </p>
+
+ <ol>
+     <li>Fix parameter: SOG and COG are used to correct for motion of observer (MOO) between sight UTs and fix UT (see below under 7).
+     </li>
+     <li>Pressing "Update Fix" will reduce all sights, calculate 2-LOP fix and update the lat/lon display with the fix position. Fix calculation is plane trig for two LOPs only. More or fewer LOPs will trigger an error message when trying to calculate a fix.
+     </li>
+     <li>LOP box; body selection combo box allows selection of a specific star in the right box only if "star" is selected in the left box.
+     </li>
+    <li> "AP" is assumed position for sight reduction/intercept calculation. If you add an LOP via the "+" button it will be initialized with the previous LOP’s AP. At launch these fields will be initialized for the first LOP with the values of parameters <span class="code">INITIAL_LAT</span> and <span class="code">INITIAL_LON</span> in <a href="02_configuration.html#subsec_ini_file">celnav.ini</a>. If CelNav is running under <a href="http://navigatrix.net">Navigatrix</a>, the values in celnav.ini will automatically be updated prior to launching CelNav with data from /etc/nx.lat and /etc/nx.lon. Under Navigatrix those files record the latest GPS position when a GPS device is connected on a USB port</li>
+
+    <li> Sight parameters are assumed to be the same for all sights under an LOP.</li>
+
+    <li> You can add multiple sights to an LOP, reduce all of them and then pick the best one (e.g. median intercept) for inclusion in the fix calculation via the radio button on the right (8).</li>
+
+    <li> Pressing "Reduce Sights" will reduce all sights under that LOP and update the values for intercept and azimuth. "MOO corr. IC" includes a correction for the motion of the observer between the sight time and the fix time (SOG, COG under "Fix"). The MOO corrected value will be used for the fox calculation. Ths MOO correction is equivalent to table 1 in HO249 Vol. 1. It assumes that the body's azimuth doesn't appreciably change between sight UT and fix UT and is therefore not suitable for a "real" running fix with a few hours between sight and fix UTs. It does help however if there are are say 20min between my first sight/LOP and the chosen time for the fix (say next even half hour). At 5kn and without this correction that would introduce an error of about 1.5nm if the body for that LOP is significantly ahead or abaft the beam.</li>
+
+    <li> Radio button allows selection of sight to be used for that LOP in the fix calculation.</li>
+
+    <li> "Hide Sights” will collapse all sights and only display intercepts and azimuth for the selected sight. This button will then change to "Show Sights"</li>
+
+    <li>"Write Log" will write all data for the current sights, LOPs and the fix to ~/.celnav/celnav.log (or any other file that has been defined via the <span class="code">LOG_FILE</span> parameter in <a href="03_configuration.html#subsec_ini_file"><span class="path">celnav.ini</span></a>. You can access the log file via the menu under <span class="menu_item">File -&gt; Open log file</span> which will open the log file in the application defined via the parameter <span class="code">SPREADSHEET_PATH</span> in <a href="03_configuration.html#subsec_ini_file"><span class="path">celnav.ini</span></a> as shown below:
+</li>
+
+ </ol>
+ <ul class="no_bullet">
+     
+     <li><img src="images/celnav_log.gif" widht="800" height="381" alt="CelNav Log" />
+    </li>a
+
+    <li>UT date and time in column A and B indicate when the corresponding record was written to the file. All other fields represent data that is visible on the tab at the time the entries are written.</li>.
+
+    <li>In the latest version of CelNav the application writes an additional record at start-up that is not shown in the screenshot above. This additional record logs the current settings for the star ephemeris calculation (see <a href="02_configuration.html#subsec_ephemengine">here</a> for deatails) and looks like this:</li>
+    <li><span class="code">2013-Jul-16  7:57:35  ### STAR_CALC == 'celnav' ###  starcat.DB_SOURCE == 'aa' ###</span>
+    <li>
+
+    <li>The parameters <span class="code">STAR_CALC</span> and <span class="code">DB_SOURCE</span> are explained in the <a href="02_configuration.html#subsec_ephemengine">Configuration</a> section.</li>
+
+</ul>
+
+<p>A few additional comments:</p>
+
+<ul>
+    <li>You can of course calculate LOPs for more or less than two bodies with CelNav. However, the automated lat/lon calculation for the fix will only work with two LOPs.
+    </li>
+
+    <li>You can also have CelNav reduce your LOPs for running fixes (as in a "real" running fix - not the MOO correction mentioned above). However, it does not automatically advance or retard position lines. Nor does it automatically calculate the lat/lon from a running fix. You would get two intercepts and azimuths for two LOPs and will have to manually plot them for the fix. While an automatic lat/lon calculation for the running fix would actually be quite straight forward, I'm a firm believer that a running fix should always be plotted in order to reflect best available DR information.</li>
+
+</ul>
+
+ <hr /> 
+ <div id="prevNextContainer">
+ <li id="prev">previous: <a href="02_configuration.html">Configuration</a></li>
+ <!--
+ <li id="next"><a href="04_applications.html">Next</a></li>
+ -->
+ </div>
+
+ </body>
+
+ </html> 

@@ -1,0 +1,89 @@
+NOTES ON UNDERLYING STAR DATA:
+
+    The data in starcat.py represents a subset of the star data included in
+    the PyEphem distribution (file star.py, taking only navigational stars).
+    This subset has been augmented by the follwing navigational stars that were
+    missing in the PyEphem distribution:
+
+        Acamar, Acrux, Adhara, Aldebara, Alkaid, Al Na'ir, Alpheratz, Ankaa,
+        Atria, Avior, Diphda, Eltanin, Gacrux, Gienah, Hadar, Kaus Australis,
+        Menkent, Miaplacidus, Mirfak, Rigil Kentaurus, Sabik, Suhail,
+        Zubenelgenubi
+    
+    Data for these stars was taken from the hip_main.dat catalogue (downloaded
+    in June 2013). Based on this data outputs from PyEphem and Steve
+    Moshier's AA Ephemeris Program have been compared for the following
+    parameters:
+        
+        Latitudes:  -30, 0, 30 deg
+        Longitude:  -178 deg
+        UT in hourly intervals from 0 to 23 on:
+                    30JUN 2012, 
+                    30SEP 2014, 
+                    31DEC 2016, 
+                    31MAR 2018
+
+    Results:
+
+        -   For apparent topocentric altitudes (Ha) >= 12 deg the difference
+            between Ha output from ephem (based on 'hip' data) and aa is less
+            than 0.25' with the exception of Rigil Kentaurus (up to 0.64') and
+            Arcturus (up to 0.34'). These differences can be reduced to less
+            than 0.15' for all stars if DB_SOURCE is set to 'aa'. 
+
+        -   For Ha below 12deg the differences between ephem and aa outputs
+            increase across virtually all stars as Ha approaches 0. For
+            DB_SOURCE == 'hip'the max. difference is 0.82' (Rigil Kentaurus).
+            For DB_SOURCE == 'aa' the max. difference is 0.35' (Achernar).
+
+        -   For Ha values between 0 and -8 deg there are substantial
+            differences between aa and ephem outputs across virtually all
+            stars. For either DB_SOURCE ('hip' or 'aa') the max. difference
+            reaches 87' at Ha values around -4 deg for a number of stars (no
+            discernable pattern). For altitudes <= -8 deg the differences are
+            in a range similar to the one for altitudes >= 12 deg for either
+            DB_SOURCE. 
+
+        -   For DB_SOURCE == 'hip' Arcturus is the only star for which values
+            for declination differ by more than 0.25' between aa and ephem.
+            Sirius and Procyon have differences in excess of 0.1' but less than
+            0.25'. For DB_SOURCE == 'aa' Rigil Kentaurus is the only star with
+            declination difference of more than 0.02' between aa and ephem
+            outputs (0.057').
+
+        -   For DB_SOURCE == 'hip' Rigil Kentaurus is the only star for which SHA
+            values differ by more than 0.55' between aa and ephem (max. 1.2').
+            Polaris shows differences up to 0.54', all other stars' differences
+            remain below 0.2'. For DB_SOURCE == 'aa' Polaris shows a SHA
+            difference of up to =.46', all other stars' differences remain
+            below 0.05'.
+
+        -   Values for magnitude of stars differ by more than 0.1 between aa
+            and ephem for Acamar (aa: 3.4, ephem: 2.9) and Acrux (aa: 1.6,
+            ephem: 0.9).
+
+    In summary both data sources for ephem ('hip' and 'aa') should work for
+    practical values of Ha (>= 12 deg), with DB_SOURCE == 'aa' giving a better
+    match to the values published in/derived from the Nautical Almanac (given
+    that ephem outputs for DB_SOURCE == 'aa' more closely track AA outputs
+    which are said to have been tested extensively against NA data). Of course,
+    'hip' may be right and the NA may be wrong....
+    
+    I have no idea what drives the big differences between ephem and aa outputs
+    for both DB_SOURCE values at Ha around -4 deg (perhaps different refraction
+    models?). 
+
+    I'm also curious why the J2000 epoch RA and Dec values in hip are different
+    from what's shown in aa (and presumably matches the USNO refernce data).
+    This difference is most notable for Rigil Kentaurus:
+    
+        hip: 
+            RA:     14:39:40.90
+            Dec:    -60:50:06.5
+
+        aa:
+            RA:     14:39:35.967
+            Dec:    -60:50:07.30
+
+    If anyone can educate me regarding these differences I'd appreciate your
+    comments at markus@namaniatsea.net - thanks!

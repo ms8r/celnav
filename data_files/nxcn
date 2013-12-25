@@ -1,0 +1,33 @@
+#!/bin/bash
+
+#
+#   nxcn    -   Shell script to launch CelNav application.
+#               If file /etc/nx.lat exists, the sript assumes it runs under
+#               Navigatrix and will update latitude and longitude in CelNav's
+#               ini file from /etc/nx.lat and /etc/nx.lon repsectively
+#
+
+userAppDir=$HOME/.celnav
+errFile="${userAppDir}"/celnav.err
+iniFile="${userAppDir}"/celnav.ini
+pyScript="/opt/celnav/cnscript.py"
+
+if [ -e "${iniFile}" ]
+then
+    if [ -e /etc/nx.lat ]
+    then
+        lat=$(cat /etc/nx.lat)
+        lon=$(cat /etc/nx.lon)
+        sed "s/INITIAL_LAT.*/INITIAL_LAT = $lat/;s/INITIAL_LON.*/INITIAL_LON = $lon/" "${iniFile}" >"${iniFile}.new"
+        mv "${iniFile}.new" "${iniFile}"
+    fi
+fi
+
+if [ ! -d "${userAppDir}" ]
+then
+	mkdir -p "${userAppDir}"
+fi
+
+echo $(date '+%Y/%m/%d-%H:%M:%S') >> "${errFile}"
+
+python "${pyScript}" 2>> "${errFile}"

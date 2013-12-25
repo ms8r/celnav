@@ -1,0 +1,8 @@
+[Desktop Entry]
+Categories=Navigation;
+Type=Application
+Name=CelNav
+Comment="Celestial navigation for cruisers: electronic almanac and sight reduction"
+Exec=/usr/local/bin/nxcn
+Icon=/usr/local/share/icons/navtriangle.png
+Terminal=false

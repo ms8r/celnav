@@ -1,0 +1,205 @@
+/*===GENERAL PRESENTATION===*/
+/*===Body Presentation and Margins===*/
+body
+{
+text-align: justify;
+line-height: 120%;
+}
+
+/*===Headings===*/
+h1
+{
+text-indent: 0;
+text-align: left;
+margin: 50px 0 25px 0;
+font-size: 2.0em;
+font-weight: bold;
+page-break-before: always;
+}
+
+h2
+{
+text-indent: 0;
+text-align: left;
+margin: 50px 0 10px 0;
+font-size: 1.5em;
+font-weight: bold;
+page-break-before: always;
+}
+
+h3
+{
+text-indent: 0;
+text-align: left;
+font-size: 1.4em;
+font-weight: bold;
+}
+
+
+/*===Paragraph Elements===*/
+
+p
+{
+text-indent: 0;
+margin: 1.0em 1.0em 1.0em 1.0em;
+}
+
+
+/* for centered text and element wrappers on images*/
+p.centered
+{
+text-indent: 0;
+margin: 1.0em 0 0 0;
+text-align: center;
+}
+
+
+/* First sentence in chapters following heading */
+p.texttop
+{
+margin: 1.5em 0 0 0;
+text-indent: 0;
+}
+
+/* 1st level TOC */
+p.toctext1
+{
+margin: 1em 0 0 1.5em;
+text-indent: 0;
+text-align: left;
+}
+
+/* 2nd level TOC */
+p.toctext2
+{
+margin: 0.5em 0 0 2.5em;
+text-indent: 0;
+text-align: left;
+}
+
+/* 3nd level TOC */
+p.toctext3
+{
+margin: 0 0 0 3.5em;
+text-indent: 0;
+text-align: left;
+}
+
+/* Titles */
+p.title
+{
+font-family:'Sans';
+font-size:2.2em;
+font-weight:bold;
+text-align: center;
+}
+
+p.subtitle
+{
+font-family:'Sans';
+font-size:1.8em;
+font-weight:bold;
+text-align: center;
+}
+
+
+/*==IMAGES==*/
+img
+{
+max-width: 100%;
+}
+
+/*===IN-LINE STYLES===*/
+
+span.list_leader {
+	font-weight:bold;
+}
+
+span.menu_item {
+	font-style:italic;
+}
+
+span.path {
+	font-weight:bold;
+}
+
+span.emphasis {
+	font-style:italic;
+}
+span.code {
+	font-family:'Monospace';
+}
+
+span.keyboard_shortcut {
+	font-family:'Monospace';
+}
+
+
+span.banner_text {
+    color: #ffffff;
+}
+
+
+/*==Lists ==*/
+ol, ul
+{
+margin: 1em 2em 0em 2em;
+text-align: left;
+}
+
+/* list without bullet for continuing paragraphs or images in lists */
+ul.no_bullet
+{
+list-style-image: url("images/empty_bullet.gif");
+margin: 1em 2em 0 2em;
+text-align: left;
+}
+
+/* list items with some space between items */
+li
+{
+margin: 1em 2em 0 0;
+}
+
+div.pagebanner{
+    background-image: url("images/page_banner.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #0a0d1a;
+    color: #ffffff;
+}
+
+/* previous/next buttons */
+#prevNextContainer{
+   padding:0px;
+   border-bottom:3px solid #dadada;
+   height:105px;
+}
+
+#prevNextContainer ul, #prevNextContainer li{
+   padding:0px;
+   margin:0px;
+   display:inline;
+}
+
+#prevNextContainer #prev{
+   float:left;
+   list-style-type:none;
+}
+
+#prevNextContainer #toc{
+   float:left;
+   list-style-type:none;
+}
+
+#prevNextContainer #nx{
+   float:right;
+   list-style-type:none;
+}
+
+#prevNextContainer #next{
+   float:right;
+   list-style-type:none;
+}
+
+

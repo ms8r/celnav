@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+ <html xmlns="http://www.w3.org/1999/xhtml">
+
+ <head>
+
+ <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+ <link type="text/css" rel="stylesheet" href="stylesheet.css" />
+ <title>CelNav - Celestial Navigation for Cruisers</title>
+ 
+ </head>
+
+ <body>
+
+ <div class="pagebanner">
+ <div id="prevNextContainer">
+     <li id="toc"><a href="index.html#toc"><span class="banner_text">Table of Contents</span></a></li>
+ <!--
+ <li id="nx"><a href="http://navigatrix.net">Navigatrix home</a></li>
+ -->
+ </div>
+ </div>
+
+ <h1 id="sec_configuration">Configuration</h1>
+
+ <h2>Basic Set-up</h2>
+
+ <p> After successfully installing CelNav you will have </p>
+ <ul>
+     <li>Package celnav with modules celnav, cnapp, cncfg and starcat in whatever directory your Python installation uses for third party packages
+     </li>
+     <li>Python script cnscript.py in /opt/celnav. You can launch the program by running this script from the command line. However, it is recommended to use the nxcn shell script which performs some additional housekeeping (see below).
+     </li>
+     <li>Configuration files celnav.ini and celnav.cfg in directory $HOME/.celnav. celnav.cfg is an Xdefaults-type configuration file, defining options for the Tkinter widgtes used in the GUI. There should be no need to change it. See <a href="02_configuration.html#subsec_ini_file">below</a> for details on celnav.ini.
+     </li>
+     <li>Shell script nxcn in directory /urs/local/bin. The shell script executes 'python /opt/celnav/cnscript.py'. It redirects/appends stderr to $HOME/.celnav/celnav.err and puts a timestamp in that file before launching the application. It will create the directory if it doesn't exist. If the files '/etc/nx.lat' and '/etc/nx.lon' exist it is assumed that these contain most recent values for latitude and longitude in degrees (incl. decimal fractions). This is the case under <a href="http://navigatrix.net">Navigatrix</a>, a popular Linux distribution among cruisers. If these files are found, the nxcn shell script will use lat/lon values from these files to update the INITIAL_LAT and INITIAL_LON parameters in celnav.ini prior to launching the application.
+     </li>
+     <li>LXDE desktop file celnav.desktop in directory /usr/local/share/applications. This file points to the nxcn shell script which is assumed to reside in /usr/local/bin and defines application category ("Navigation") and icon for the LXDE environment. Can be ignored if not running under LXDE. 
+     </li>
+     <li>Icon image file navtriangle.png. celnav.desktop assumes this file resides in /usr/local/share/icons/.
+     </li>
+ </ul>
+
+ <p>You may have to change some file locations and/or create additonal links to launch CelNav if you are not running under LXDE. As long as you can get your desktop manager to launch the cnscript.py file you should be set to go. And there is always the command line of course...
+ </p> 
+
+
+ <h2 id="subsec_ini_file">INI File Parameters</h2>
+
+ <p>Some of CelNav's parameters can be changed in the celnav.ini configuration file in $HOME/.celnav. The installation comes with an <a href="celnav.ini">extensively commented celnav.ini</a>. Please refer to this file for infromation about the parameters in the ini file.
+ You can also open the actual version of your celnav.ini file by choosing <span class="menu_item">File -&gt; Open ini file</span> from the CelNav menu:</p>
+
+
+ <p class="centered"><img src="images/file_menu_ini_open.png" widht="140" height="142" alt="File Menu" /></p>
+
+
+ <h2 id="subsec_ephemengine">Configuring Ephemeris Calculation for Stars</h2>
+
+ <p>By default CelNav uses PyEphem for ephemeris calculations for Sun. Moon, planets and stars. You can alternatively use Steve Moshier's "Astronomical Almanac Computer Ephemeris" (aa) for star data caclulation, provided aa is installed on your system. Read <a href="starnotes.txt">here</a> why you may want to do so. Unless you plan to use CelNav for reducing star sights with very low topocentric altitudes (-10° &lt; H &lt; 10°) you probably won't have to worry about this. </p>
+
+ <p> To change the star ephemeris calculation to aa you will have to update the following parameters in celnav.ini in section <span class="code">[celnav]</span>:
+ </p>
+ <ul>
+     <li> Set <span class="code">STAR_CALC = aa</span>
+     </li>
+     <li> Make sure the parameters <span class="code">AA_EXE_FILE</span> and <span class="code">AA_STAR_CAT_FILE</span> point to the direct files on your system (aa executable and aa star catalogue file respectively).
+     </li>
+ </ul>
+
+ <p> If you stick with PyEphem for star ephemeris calculations (<span class="code">STAR_CALC = ephem</span> in celnav.ini) you still have a choice which star catalogue data PyEphem should use. Valid options in celnav.ini, section <span class="code">[starcat]</span> are:
+</p>
+<ul>
+    <li><span class="code">DB_SOURCE = hip</span> which has J2000 R.A., declinations and proper motion parameters from the Hipparcos main catalog (hip_main.dat).
+    </li>
+    <li><span class="code">DB_SOURCE = aa</span> which uses J2000 R.A. and declination data from aa's output. Proper motion data will still be taken from hip_main.dat. 
+    </li>
+</ul>
+<p> Note that this does not affect the use of PyEphem for star ephemeris calculation, it only changes the data source PyEphem uses for the calculation.  The 'aa' option provides a better match between apparent topocentric altitudes
+computed by ephem vis-a-vis aa.  See <a href="starnotes.txt">here</a> for more details on what the effect of either choice is.
+</p>
+
+
+ <hr /> 
+
+ <div id="prevNextContainer">
+ <li id="prev">previous: <a href="01_installation.html">[1] Installation</a></li>
+ <li id="next">next: <a href="03_usage.html">[3] Usage</a></li>
+ </div>
+
+ </body>
+
+ </html> 

@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+ <html xmlns="http://www.w3.org/1999/xhtml">
+
+ <head>
+
+ <!-- $Id: 01_installation.html,v 1.1 2013/08/02 02:41:46 markus Exp markus $ -->
+
+ <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+ <link type="text/css" rel="stylesheet" href="stylesheet.css" />
+ <title>CelNav - Celestial Navigation for Cruisers</title>
+
+ </head>
+
+ <body>
+     
+ <div class="pagebanner">
+ <div id="prevNextContainer">
+     <li id="toc"><a href="index.html#toc"><span class="banner_text">Table of Contents</span></a></li>
+     <!--
+     <li id="nx"><a href="http://navigatrix.net">Navigatrix home</a></li>
+    -->
+ </div>
+ </div>
+
+ <h1 id="sec_installation">Installation</h1>
+
+ <h2>Prerequisites</h2>
+
+ <p> CelNav uses the PyEphem package to calculate ephemeris data for Sun, Moon, navigational planets and stars (see <a href="http://rhodesmill.org/pyephem/index.html">rhodesmill.org/pyephem/</a>). PyEphem must be installed in order for CelNav to run (it is available for free at the URL listed above). In addition Python 2.6 or newer must be installed with Tkinter and its ttk ("Themed Tkinter") descendant.
+ </p>
+
+ <h2>Installing CelNav</h2>
+ 
+ <p>CelNav is available as a Python source distribution in a single archive file (CelNav-0.2.0.tar.gz). The archive contains a README file with detailed installation instructions and a description of the files contained in the archive. In most cases the installation simply consists of the following steps:
+ </p>
+
+ <ol>
+     <li> Extract the contents of the archive file into any directory, preserving the
+     folder structure. 
+     </li>
+
+     <li> Open a terminal in the folder CelNav-0.2.0 and run
+     </li>
+ </ol>
+ <ul class="no_bullet">
+     <li> <span class="code">python setup.py install</span>
+     </li>
+
+     <li> at the command line. This will install the celnav package and place the
+    auxilliary files (e.g. icon, shell script) in their respective target
+    directories. Note that - depending on your system setup - you may need to
+    run the above command as root. In this case type
+    </li>
+
+    <li> <span class="code">sudo python setup.py install</span>
+    </li>
+
+    <li>at the command prompt.
+    </li>
+ </ul>
+
+ <p>Under <a href="http://navigatrix.net">Navigatrix</a> you should then find a CelNav entry in the Navigation category of the Manata Menu.
+ </p>
+ <p> For a detailed set of installation instructions please consult the <a href="readme.txt">README</a> file in the distribution package.
+ </p>
+
+
+ <hr /> <div id="prevNextContainer">
+ <li id="prev">previous: <a href="index.html">Overview</a></li>
+ <li id="next">next: <a href="02_configuration.html">Configuration<a/></li>
+</div>
+
+</body>
+
+ </html> 
