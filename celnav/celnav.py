@@ -11,8 +11,7 @@ aa star catalogue file mus be specified in AA_STAR_CAT_FILE below.
 """
 
 __author__ = "markus@namaniatsea.org"
-__version__ = "0.2.1"
-__revision__ = "$Id: celnav.py,v 1.16 2013/08/16 11:45:25 markus Exp markus $"
+__version__ = "0.2.2"
 
 # import standard libraries
 from math import *
@@ -23,7 +22,7 @@ import re
 import tempfile
 import ConfigParser
 
-# import PyEphem (see http://rhodesmill.org/pyephem/index.html) 
+# import PyEphem (see http://rhodesmill.org/pyephem/index.html)
 import ephem
 
 # celestial body list
@@ -66,7 +65,7 @@ if cncfg.cncfg.has_option(SECTION_ID, 'STAR_CALC'):
 #-----------------------------------------------------------------------------
 
 # assemble start-up log-string (can be written to log-file by other module):
-START_UP_LOG_MSG = ('### celnav.STAR_CALC == \'%s\' ###  starcat.DB_SOURCE == \'%s\' ###' 
+START_UP_LOG_MSG = ('### celnav.STAR_CALC == \'%s\' ###  starcat.DB_SOURCE == \'%s\' ###'
         % (STAR_CALC, starcat.DB_SOURCE))
 
 # import generic print overloader
@@ -74,13 +73,13 @@ import classprint
 
 
 class Angle(classprint.AttrDisplay):
-    """Stores Angle as 
+    """Stores Angle as
         - decD: degrees as decimal fraction
         - rad: radians
-        - degMin: as a tuple (deg, min, sign) containing whole  
-          degrees, minutes (incl. fraction) and a sign (+1 / -1) 
+        - degMin: as a tuple (deg, min, sign) containing whole
+          degrees, minutes (incl. fraction) and a sign (+1 / -1)
     Setting one attribute will automatically update the others.
-    Values >= 360 or <= -360 will automatically be reduced by 
+    Values >= 360 or <= -360 will automatically be reduced by
     multiples of 360
     """
 
@@ -88,13 +87,13 @@ class Angle(classprint.AttrDisplay):
     signDict['lat'] = { 1 : 'N', -1:'S' }
     signDict['lon'] = { 1 : 'E', -1:'W' }
     signDict['generic'] = { 1 : '+', -1:'-' }
-    
+
     def __init__(self, decD = 0):
         """Initializes decimal degree attribute of Angle;
-        __setattr__ will take care of the other attributes 
+        __setattr__ will take care of the other attributes
         """
-        self.decD = decD          
-        
+        self.decD = decD
+
 
     def __setattr__(self, name, value):
         """Keep rad and deg values in synch, remove 360 multiples
@@ -109,7 +108,7 @@ class Angle(classprint.AttrDisplay):
 
             self.__dict__["decD"] = (self.degMin[0] + self.degMin[1]/60.0) * self.degMin[2]
             self.__dict__["rad"] = radians(self.decD)
-        
+
         elif name == "rad":
             if abs(self.rad) >= 2*pi:
                 n = int(self.rad / (2*pi))
@@ -123,7 +122,7 @@ class Angle(classprint.AttrDisplay):
                 sign = 1
             self.__dict__["degMin"] = (d, m, sign)
             self.__dict__["decD"] = decD
-        
+
         elif name == "decD":
             if abs(self.decD) >= 360:
                 n = int(self.decD / float(360))
@@ -151,7 +150,7 @@ class Angle(classprint.AttrDisplay):
         """Returns angle as longitude string (e.g. 'E 178 34.5')
         """
         return '%s %03d %04.1f' % (Angle.signDict['lon'][self.degMin[2]], self.degMin[0], self.degMin[1])
-    
+
     def absStr(self):
         """Returns angle as string without sign (e.g. '178 34.5')
         """
@@ -175,9 +174,9 @@ class Sight(classprint.AttrDisplay):
     """
     def __init__(self, Hs = 0, UT = None, Ic = 0, Az = 0):
         """Initializes Sight object
-        Hs: uncorrected sextant altitude in degrees 
+        Hs: uncorrected sextant altitude in degrees
             with decimal fraction
-        UT: UT date and time of Sight as 
+        UT: UT date and time of Sight as
             (Y, M, D, h, m, s)
         Ic: Intercept in nm
         Az: Azimuth in decD
@@ -195,13 +194,13 @@ class Sight(classprint.AttrDisplay):
 
 
 class MyObserver(ephem.Observer, classprint.AttrDisplay):
-    """Customizes PyEphem's Observer class to allow initialization and lat/lon in 
-    decimal degrees and minutes with decimal fraction. Also add index error and 
+    """Customizes PyEphem's Observer class to allow initialization and lat/lon in
+    decimal degrees and minutes with decimal fraction. Also add index error and
     height of eye
     """
     def __init__(self, lat = 0, lon = 0, elevation = 0, heightOfEye = 0, indexError = 0,
             temp = 20, pressure = 1010):
-        """Initializes Vessel object with 
+        """Initializes Vessel object with
         lat:                latitude in degrees as decimal fraction (S = -)
         lon:                longitude in degrees as decimal fraction (W = -)
         elevation:          above sea level in meters
@@ -210,7 +209,7 @@ class MyObserver(ephem.Observer, classprint.AttrDisplay):
         temp:               in degrees C
         pressure:           in mb
         """
-        # Observer does not take arguments => call __init__ empty, 
+        # Observer does not take arguments => call __init__ empty,
         # then add assigments here:
         ephem.Observer.__init__(self)
         self.lat = Angle(lat).rad
@@ -219,7 +218,7 @@ class MyObserver(ephem.Observer, classprint.AttrDisplay):
         self.temp = temp
         self.pressure = pressure
 
-        self.indexError =  Angle(indexError/60.0)  
+        self.indexError =  Angle(indexError/60.0)
 
         self.heightOfEye = heightOfEye
 
@@ -247,11 +246,11 @@ class MyObserver(ephem.Observer, classprint.AttrDisplay):
 
 
 class LOP(classprint.AttrDisplay):
-    """Data structure to store/manipulate parameters of a sextant sight: 
-    observed body, sextant altitude, index error, height of eye, 
+    """Data structure to store/manipulate parameters of a sextant sight:
+    observed body, sextant altitude, index error, height of eye,
     apparent topocentric altitude
     """
-    
+
     # dictionary for aa calculation of Ha and Az (see aaStars() below)
     if STAR_CALC == 'aa':
         aaReDict = {}
@@ -260,7 +259,7 @@ class LOP(classprint.AttrDisplay):
 
     def __init__(self, fix = None, body = "Sun LL", starName = None, indexError = 0, heightOfEye = 0,
             lat = 0, lon = 0, elevation = 0, temp = 20, pressure = 1010):
-        """Initialization values for 
+        """Initialization values for
         lat:                latitude in degrees as decimal fraction (S = -)
         lon:                longitude in degrees as decimal fraction (W = -)
         elevation:          above sea level in meters
@@ -272,7 +271,7 @@ class LOP(classprint.AttrDisplay):
 
         self.fix = fix          # fix to which LOP belongs;
                                 # can be used to access SOG/COG/UT from Fix for MOO correction
-        
+
         self.body = body        # Observed body; possible values:
                                 #   - Sun UL, Sun LL, Moon UL, Moon LL
                                 #   - Venus, Mars, Jupiter, Saturn
@@ -280,10 +279,10 @@ class LOP(classprint.AttrDisplay):
                                 # If "star", starName must be a star name that
                                 # is known to PyEphem
 
-                    
-        self.starName = starName 
+
+        self.starName = starName
                                 # star name (see under "body" above)
-        
+
         if starName != None:
             self.starNum = starcat.navStarNum[starName]
         else:
@@ -293,16 +292,16 @@ class LOP(classprint.AttrDisplay):
         self.lopSightIndex = -1
                                 # index for Sight in self.sightList to be used for fix calculation
 
-        self.observer =  MyObserver(lat = lat, lon = lon, elevation = elevation, indexError = indexError, 
-                heightOfEye = heightOfEye, temp = temp, pressure = pressure) 
-                                # needs to be updated with time of shot before call to 
-                                # PyEphem for computation of topocentric apparent 
+        self.observer =  MyObserver(lat = lat, lon = lon, elevation = elevation, indexError = indexError,
+                heightOfEye = heightOfEye, temp = temp, pressure = pressure)
+                                # needs to be updated with time of shot before call to
+                                # PyEphem for computation of topocentric apparent
                                 # altitude
 
-    
+
 
     def calcHa(self):
-        """Calculates and sets apparent altitudes in sightList based on Hs, 
+        """Calculates and sets apparent altitudes in sightList based on Hs,
         indexError and dip; calls calcDip() just in case...
         """
         MyObserver.calcDip(self.observer)
@@ -316,9 +315,9 @@ class LOP(classprint.AttrDisplay):
         srfIc for short-run fix calculation from multiple LOPs. To correct Ic for
         MOO COG, SOG and UT from class Fix are used (shared attributes at class level).
         Uses PyEphem to calculate ephemeris data (or aa if STAR_CALC == 'aa').
-        PyEphem provides apparent topocentric altitudes which are compared 
-        to sextant altitude corrected for index error and dip in order to calculate 
-        intercepts. For sun and moon, PyEphem also provides radii which are used to 
+        PyEphem provides apparent topocentric altitudes which are compared
+        to sextant altitude corrected for index error and dip in order to calculate
+        intercepts. For sun and moon, PyEphem also provides radii which are used to
         adjust computed apparen topocentric altitudes to yield values that can be compared
         to upper or lower limb sights.
         """
@@ -330,7 +329,7 @@ class LOP(classprint.AttrDisplay):
         for s in self.sightList:
 
             self.observer.date = s.UT
-            
+
             # create ephem object instance for body;
             if splitBody[0] == 'star':
 
@@ -346,9 +345,9 @@ class LOP(classprint.AttrDisplay):
 
                 elif STAR_CALC == 'aa':
 
-                    d = aaStars(LOP.aaReDict, AA_STAR_CAT_FILE, self.starNum, ut = s.UT, 
+                    d = aaStars(LOP.aaReDict, AA_STAR_CAT_FILE, self.starNum, ut = s.UT,
                             lat = degrees(self.observer.lat), lon = degrees(self.observer.lon),
-                            hoe = self.observer.heightOfEye, temp = self.observer.temp, 
+                            hoe = self.observer.heightOfEye, temp = self.observer.temp,
                             pressure = self.observer.pressure)
 
                     # extract Hc and Az:
@@ -371,10 +370,10 @@ class LOP(classprint.AttrDisplay):
                                             # it comparable to observed Ha
                     else:
                         Hc.rad -= e.radius  # same logic for lower limb sight
-                                            # Note: this radius is topocentric since the 
+                                            # Note: this radius is topocentric since the
                                             # intercept calculation is done with all topo-
-                                            # centric values. The value of e.radius will 
-                                            # will differ from the SD value listed in the 
+                                            # centric values. The value of e.radius will
+                                            # will differ from the SD value listed in the
                                             # NA (geocentric).
 
             s.Ic = (s.Ha.decD - Hc.decD) * 60
@@ -384,15 +383,15 @@ class LOP(classprint.AttrDisplay):
             dT = dt.datetime(*self.fix.UT) - dt.datetime(*s.UT) # as dt.timedelta
             dT_hrs = dT.days * 24 + dT.seconds / 3600.0         # in hours
 
-            # now calculate MOO corrected Intercept based on Fix SOG/COG 
+            # now calculate MOO corrected Intercept based on Fix SOG/COG
             s.srfIc = s.Ic + cos(self.fix.COG.rad - s.Az.rad) * self.fix.SOG * dT_hrs
 
-                
+
 class Fix(classprint.AttrDisplay):
     """Top-level class: a Fix consists of multiple LOPs which in turn
     each consist of one or more Sights. Also defines vessel's SOG and COG
     for short-run running fixes, fix lat/lon and UT.
-    
+
     SOG:        speed over ground in kn
     COG:        course over ground in decD true
     UT:         date and time for fix (UT) as (Y, M, D, h, m, s);
@@ -418,11 +417,11 @@ class Fix(classprint.AttrDisplay):
 
     def calc2LOPFix(self):
         """Calculates fix from two LOPs by using plane trig. For each LOP the sight indicated
-        by LOP.lopSightIndex will be used. Intercepts will be MOO adjusted based on Fix.SOG and 
+        by LOP.lopSightIndex will be used. Intercepts will be MOO adjusted based on Fix.SOG and
         Fix.COG. Works only if both LOPs use same AP. Raises FixLOPError if number of LOPs
         (and selected Sights) is != 2 or the two LOPs use different APs
         """
-        
+
         # check if 2 LOPs have 1 Sight selected each to be used for fix:
         if len(self.lopList) != 2:
             raise FixLOPError
@@ -447,9 +446,9 @@ class Fix(classprint.AttrDisplay):
         I2 = sight2.srfIc
         Z1 = sight1.Az.rad
         Z2 = sight2.Az.rad
-        t1 = sight1.UT 
-        t2 = sight2.UT 
-    
+        t1 = sight1.UT
+        t2 = sight2.UT
+
         # check if both LOPs use same AP (must be less than 0.1' apart):
         maxDiff = pi / (60 * 180)
         AP_Lat = self.lopList[maxIndex].observer.lat
@@ -479,7 +478,7 @@ class FixLOPError(Exception):
 
 
 class SunMoonRiseSet(classprint.AttrDisplay):
-    """Calculates and stores data for Sun and Moon rise and set, 
+    """Calculates and stores data for Sun and Moon rise and set,
     meridian passage, twighlight, and moonphase for a given UT
     and lat/lon. All times provided by SunMoonRiseSet are in UT. See __init__
     doc string for attributes. Exports calcData() which updates all attributes
@@ -494,7 +493,7 @@ class SunMoonRiseSet(classprint.AttrDisplay):
         always or never up above the polar circle values for all sun events
         will be None. Moon events will still be sought with ut as a starting
         reference time.
-        
+
         Attributes:
             sun         -   ephem Sun object; sun will have a dictionary
                             sunData containing (Y, M, D, h, m, s)
@@ -509,13 +508,13 @@ class SunMoonRiseSet(classprint.AttrDisplay):
                                 twl_naut_pm
                                 eot
                                 sd
-                            Associated values can be None if sun will not 
-                            rise/set at given lat and date. 
+                            Associated values can be None if sun will not
+                            rise/set at given lat and date.
 
             moon        -   ephem Moon object; moon will have a dictionary
                             moonData containing (Y, M, D, h, m, s)
                             tuples for the following keys (for new/full
-                            moon only (Y, M, D)). 'age' is an integer for the 
+                            moon only (Y, M, D)). 'age' is an integer for the
                             number of days since the previous new moon. 'sd' is
                             an Angle object:
                                 rise
@@ -527,7 +526,7 @@ class SunMoonRiseSet(classprint.AttrDisplay):
                                 next_new
                                 age
                                 sd
-                            Values associated with rise/mer_pass/set can be 
+                            Values associated with rise/mer_pass/set can be
                             None if moon will not rise/set at given date
 
             observer    -   ephem Observer object; used to store
@@ -544,8 +543,8 @@ class SunMoonRiseSet(classprint.AttrDisplay):
 
         self.observer = ephem.Observer()
         self.observer.lat = radians(lat)
-        self.observer.lon = radians(lon) 
-        
+        self.observer.lon = radians(lon)
+
         if ut == None:
             ut = dt.datetime.utcnow().timetuple()[:6]
 
@@ -573,7 +572,7 @@ class SunMoonRiseSet(classprint.AttrDisplay):
         # and moving horizon down 34' (as per US Naval Observatory standard)
         self.observer.pressure = 0
         self.observer.horizon = '-0:34'
-        
+
         # Moon first: all events after local midnight (= observer.date)
         try:
             t = self.observer.next_rising(self.moon).tuple()
@@ -609,7 +608,7 @@ class SunMoonRiseSet(classprint.AttrDisplay):
         self.observer.date += 0.5
         age = self.observer.date - ephem.Date(self.moonData['prev_new'])
         self.moonData['age'] = int(round(age)) % 30
- 
+
         # now Sun: start with local noon in UT (already set for moon age above)
         # to get previous sunrise:
         # note: we live with the potetnial inaccurracy if local noon is
@@ -623,16 +622,16 @@ class SunMoonRiseSet(classprint.AttrDisplay):
 
         # now move date to rise to get meridian passage and set:
         if self.sunData['rise'] != None:
-            
+
             self.observer.date = self.sunData['rise']
-            
+
             try:
                 t = self.observer.next_transit(self.sun).tuple()
             except ephem.CircumpolarError:
                 self.sunData['mer_pass'] = None
             else:
                 self.sunData['mer_pass'] = t[:5] + (int(t[5]),)
-            
+
             try:
                 t = self.observer.next_setting(self.sun).tuple()
             except ephem.CircumpolarError:
@@ -655,7 +654,7 @@ class SunMoonRiseSet(classprint.AttrDisplay):
             localUTnoon = gn + ma
 
             eot = dt.datetime(*self.sunData['mer_pass']) - localUTnoon  # dt.timedelta object
-            # NOTE: Python 2.6 doesn't provide dt.timedelta.total_seconds 
+            # NOTE: Python 2.6 doesn't provide dt.timedelta.total_seconds
             # -> revert to manual calculation
             # eot = eot.total_seconds()                                   # seconds as float
             eot = eot.microseconds / 1e6 + eot.seconds + eot.days * 24 * 3600
@@ -672,13 +671,13 @@ class SunMoonRiseSet(classprint.AttrDisplay):
 
             # civil twilight (body center 6 deg below horizon):
             self.observer.horizon = '-6'
-            try: 
+            try:
                 t = self.observer.previous_rising(self.sun, use_center = True).tuple()
                 self.sunData['twl_civil_am'] = t[:5] + (int(t[5]),)
             except ephem.CircumpolarError:
                 self.sunData['twl_civil_am'] = None
 
-            try: 
+            try:
                 t = self.observer.next_setting(self.sun, use_center = True).tuple()
                 self.sunData['twl_civil_pm'] = t[:5] + (int(t[5]),)
             except ephem.CircumpolarError:
@@ -686,13 +685,13 @@ class SunMoonRiseSet(classprint.AttrDisplay):
 
             # naut. twilight (body center 12 deg below horizon):
             self.observer.horizon = '-12'
-            try: 
+            try:
                 t = self.observer.previous_rising(self.sun, use_center = True).tuple()
                 self.sunData['twl_naut_am'] = t[:5] + (int(t[5]),)
             except ephem.CircumpolarError:
                 self.sunData['twl_naut_am'] = None
 
-            try: 
+            try:
                 t = self.observer.next_setting(self.sun, use_center = True).tuple()
                 self.sunData['twl_naut_pm'] = t[:5] + (int(t[5]),)
             except ephem.CircumpolarError:
@@ -723,7 +722,7 @@ class AlmanacPage(classprint.AttrDisplay):
     keys 'gha' and 'dec' and a list with 24 Angle objects stored against either
     key.  For the Moon 24 Angle objects for HP are also provided under key
     'hp'. Also provides hourly GHA for Aries for self.date which is stored in a
-    list with 24 Angle items.  
+    list with 24 Angle items.
     """
     def __init__(self, date = None):
         """Sets up data structures and initializes these with values provided
@@ -751,9 +750,9 @@ class AlmanacPage(classprint.AttrDisplay):
 
         # now planets...
         for body in ('sun', 'moon', 'venus', 'mars', 'jupiter', 'saturn'):
-            
+
             p = ephem.__dict__[self.__dict__[body]['ephemClass']]()
-          
+
             for h in range(24):
                 t = self.date + (h, 0, 0)
                 p.compute(t)
@@ -773,9 +772,9 @@ class AlmanacPage(classprint.AttrDisplay):
 
         # now planets...
         for body in ('sun', 'moon', 'venus', 'mars', 'jupiter', 'saturn'):
-            
+
             p = ephem.__dict__[self.__dict__[body]['ephemClass']]()
-          
+
             for h in range(24):
                 t = self.date + (h, 0, 0)
                 p.compute(t)
@@ -805,22 +804,22 @@ class StarFinder(classprint.AttrDisplay):
     reDict['az'] = re.compile(r"^Topocentric:  Altitude [^ ]* deg, Azimuth (?P<az>[^ ]*) deg$")
     reDict['dec'] = re.compile(r'^[ ]*Apparent[^D]*Dec\.[^0-9\-]*(?P<dec>[0-9\-][^"]*")[ ]*$')
     reDict['sha'] = re.compile(r'^[ ]*Apparent:[ ]*R\.A\.[^0-9]*(?P<sha>[0-9][^s]*s).*$')
-    
-    def __init__(self, starList, lat = 0, lon = 0, ut = None, pressure = 1010, temp = 20, 
+
+    def __init__(self, starList, lat = 0, lon = 0, ut = None, pressure = 1010, temp = 20,
             elevation = 0, hoe = 0):
-        """Assigns (default) values and creates initial starData list 
-            starList    -   list with star names for which data is to be computed; 
+        """Assigns (default) values and creates initial starData list
+            starList    -   list with star names for which data is to be computed;
                             star names must be known to PyEphem
             lat         -   latitide in degrees (incl. decimal fraction); S = -
             lon         -   longitude in degrees (incl. decimal fraction); W = -
-            ut          -   UT as tuple (Y. M. D, h, m, s), will default to 
+            ut          -   UT as tuple (Y. M. D, h, m, s), will default to
                             datetime.utcnow if not provided
             pressure    -   atmospheric pressure in mbar
             temp        -   temperature in deg C
             elevation   -   elevation in meter above sea level
             hoe         -   height of eye in m
         """
-        
+
         self.starList = starList
         if ut == None:
             ut = dt.datetime.utcnow().timetuple()[:6]
@@ -868,7 +867,7 @@ class StarFinder(classprint.AttrDisplay):
         for starName in self.starList:
             s = starcat.navStar(starName)
             s.compute(obs)
-            self.starData[starName] = { 'mag' : s.mag, 'alt' : Angle(s.alt*180/pi), 
+            self.starData[starName] = { 'mag' : s.mag, 'alt' : Angle(s.alt*180/pi),
                     'az' : Angle(s.az*180/pi), 'dec' : Angle(s.dec*180/pi),
                     'sha' : Angle(sha(s.ra)) }
 
@@ -907,14 +906,14 @@ class StarFinder(classprint.AttrDisplay):
             self.starData[star] = od
 
 
-def aaStars(reDict, starCatFile, starNum, ut = None, lat = 0, lon = 0, hoe = 0, 
+def aaStars(reDict, starCatFile, starNum, ut = None, lat = 0, lon = 0, hoe = 0,
         temp = 20, pressure = 1010):
     """Provides an interface to Sephen Moshier's aa program for star data.
     Receives pairs of group IDs and (compiled) regex's containing these group
     IDs to be matched against aa's output. Will return a dictionary with the
     same group IDs as keys and the corresponding matches as associated values.
-        
-    reDict      -   Dictionary in which keys are regex group IDs and associated 
+
+    reDict      -   Dictionary in which keys are regex group IDs and associated
                     value are compiled regexes containing these group IDs (one
                     group ID per regex). aaStars will match each line in aa's
                     out put against each of the regexes in the dictionary.
@@ -922,7 +921,7 @@ def aaStars(reDict, starCatFile, starNum, ut = None, lat = 0, lon = 0, hoe = 0,
                     as keys.
     starCatFile -   String with full path to star catalogue to be used
     starNum     -   Star catalogue line number of star for which data is
-                    requested 
+                    requested
     UT          -   Tuple (Y, M, D, h, m, s)
     lat         -   Observer latitude in degress (incl. decimal fraction); S = -
     lon         -   Observer longitude in degress (incl. decimal fraction); E = -
@@ -938,7 +937,7 @@ def aaStars(reDict, starCatFile, starNum, ut = None, lat = 0, lon = 0, hoe = 0,
     currentDir = os.getcwd()
     aaWorkDir = tempfile.mkdtemp()
     os.chdir(aaWorkDir)
-    
+
     aaIni = open("aa.ini", 'w')
     aaIni.write("%f\n" % lon)
     aaIni.write("%f\n" %  lat)
@@ -950,7 +949,7 @@ def aaStars(reDict, starCatFile, starNum, ut = None, lat = 0, lon = 0, hoe = 0,
     aaIni.close()
 
     aaInfile = open("aa.infile", 'w')
-    # first Y/M/D/h/m/s: 
+    # first Y/M/D/h/m/s:
     for i in range(6):
         aaInfile.write("%d\n" % ut[i])
     # 1 tabulation, 1 day intervall:
@@ -961,7 +960,7 @@ def aaStars(reDict, starCatFile, starNum, ut = None, lat = 0, lon = 0, hoe = 0,
     aaInfile.write("%d\n" % starNum)
     # -1 for graceful exit
     aaInfile.write("-1\n")
-    
+
     aaInfile.close()
 
     # call aa and write to aaOutfile:
@@ -975,7 +974,7 @@ def aaStars(reDict, starCatFile, starNum, ut = None, lat = 0, lon = 0, hoe = 0,
             m = reDict[key].match(line)
             if m:
                 outDict[key] = line[m.start(key) : m.end(key)]
-    
+
     aaOutfile.close()
 
     # clean-up
@@ -999,7 +998,7 @@ class aaStarFinder(classprint.AttrDisplay):
     azimuth, and declination and SHA repsctively.  Exports method
     updateStarData().
     """
-    
+
     noStars = 58        # number of stars = number of lines to read in aa star catalogue
 
     # shared dictionary to match aa output lines containing magnitude,
@@ -1010,21 +1009,21 @@ class aaStarFinder(classprint.AttrDisplay):
     reDict['az'] = re.compile(r"^Topocentric:  Altitude [^ ]* deg, Azimuth (?P<az>[^ ]*) deg$")
     reDict['dec'] = re.compile(r'^[ ]*Apparent[^D]*Dec\.[^0-9\-]*(?P<dec>[0-9\-][^"]*")[ ]*$')
     reDict['sha'] = re.compile(r'^[ ]*Apparent:[ ]*R\.A\.[^0-9]*(?P<sha>[0-9][^s]*s).*$')
-    
+
     def __init__(self, starList, lat = 0, lon = 0, ut = None, pressure = 1010, temp = 20, hoe = 0):
-        """Assigns (default) values and creates initial starData list 
-            starList    -   list with star names for which data is to be computed; 
+        """Assigns (default) values and creates initial starData list
+            starList    -   list with star names for which data is to be computed;
                             star names must be defined in starcat.py and
                             associated stars must exist in aa star catalogue
             lat         -   latitide in degrees (incl. decimal fraction); S = -
             lon         -   longitude in degrees (incl. decimal fraction); W = -
-            ut          -   UT as tuple (Y. M. D, h, m, s), will default to 
+            ut          -   UT as tuple (Y. M. D, h, m, s), will default to
                             datetime.utcnow if not provided
             pressure    -   atmospheric pressure in mbar
             temp        -   temperature in deg C
             hoe         -   height of eye in m
         """
-        
+
         self.starList = starList
         if ut == None:
             ut = dt.datetime.utcnow().timetuple()[:6]
@@ -1038,7 +1037,7 @@ class aaStarFinder(classprint.AttrDisplay):
         self.hoe = hoe
         starData = {}
 
-        self.updateStarData()   # each item in starData will subsequently be a dictionary 
+        self.updateStarData()   # each item in starData will subsequently be a dictionary
                                 # with key equal to the ones in StarFinder.reDict
                                 # and associated values as floats
 
@@ -1078,7 +1077,7 @@ class aaStarFinder(classprint.AttrDisplay):
 
 
 def aaBuildStarList(starList):
-    """Reads in aa star catalogue pointed to in celnav.AA_STAR_CAT_FILE and appends entries to 
+    """Reads in aa star catalogue pointed to in celnav.AA_STAR_CAT_FILE and appends entries to
     starList[] as '<starNum> - <starName>'
     """
     r = re.compile(r"^[^(]*\((?P<star>[^)]*)\).*$")     # extracts star name from catalogue line
@@ -1107,7 +1106,7 @@ class PlanetFinder(classprint.AttrDisplay):
         """lat/lon in degrees (incl. decimal fraction);
         date is a (Y, M, D) triple; date is interpreted as a local
         date at lon since ephem will calculate utc for rise, set, etc.
-        at lon. 
+        at lon.
         Attributes:
             observer    -   ephem Observer object; used to store
                             lat/lon and utDate; self.observer.date
@@ -1133,7 +1132,7 @@ class PlanetFinder(classprint.AttrDisplay):
                             corresponding UTs. pm  values are associated with
                             the sunset preceding local midnight on <date>, am
                             values are associated with sunrise following local
-                            midnight on <date>.  
+                            midnight on <date>.
         """
         self.planets = {
                 'Venus'     :   {},
@@ -1142,16 +1141,16 @@ class PlanetFinder(classprint.AttrDisplay):
                 'Saturn'    :   {},
                 'Moon'      :   {}
                 }
-        
+
         self.twilight = {}
 
         self.observer = ephem.Observer()
         self.observer.lat = radians(lat)
-        self.observer.lon = radians(lon) 
-        
+        self.observer.lon = radians(lon)
+
         if ut == None:
             ut = dt.datetime.utcnow().timetuple()[:6]
-        
+
         self.ut = ut
 
         self.calcData()
@@ -1179,7 +1178,7 @@ class PlanetFinder(classprint.AttrDisplay):
 
         # calculate ut for events based on self.observer.date ==
         # local midnight ... start with twilight:
-        
+
         # note: ephem's tuple() method returns seconds with a decimal fraction
         # which causes depreciation warnings when these tuples are used in
         # datetime operations... hence we'll truncate the seconds element manually
@@ -1187,14 +1186,14 @@ class PlanetFinder(classprint.AttrDisplay):
 
         # naut. twilight (body center 12 deg below horizon):
         self.observer.horizon = '-12'
-        try: 
+        try:
             t = self.observer.previous_setting(sun, use_center = True).tuple()
         except ephem.CircumpolarError:
             self.twilight['pm_end'] = None
         else:
             self.twilight['pm_end'] = t[:5] + (int(t[5]),)
 
-        try: 
+        try:
             t = self.observer.next_rising(sun, use_center = True).tuple()
         except ephem.CircumpolarError:
             self.twilight['am_start'] = None
@@ -1219,20 +1218,20 @@ class PlanetFinder(classprint.AttrDisplay):
             self.twilight['am_end'] = t[:5] + (int(t[5]),)
 
         # and now... the planets (plus Moon)... horizon kept at -34'
-        
+
         # save local midnight:
         localMidn = self.observer.date
-        
+
         for bn in self.planets:
-            
+
             body = ephem.__dict__[bn]()
 
             # look for events from previous local noon onwards
             self.observer.date = localMidn - 0.5
-            
+
             # note that events may be out of order (e.g. setting before rising and
             # may happen more than 24 hrs after previous local noon
-            
+
             # first rise
             try:
                 t =  self.observer.next_rising(body).tuple()
@@ -1244,9 +1243,9 @@ class PlanetFinder(classprint.AttrDisplay):
                 self.observer.date = self.planets[bn]['rise']
                 body.compute(self.observer)
                 self.planets[bn]['rise_az'] = Angle(body.az * 180 / pi)
-            
+
             self.observer.date = localMidn - 0.5
-            
+
             # then mer_pass
             try:
                 t =  self.observer.next_transit(body).tuple()
@@ -1260,7 +1259,7 @@ class PlanetFinder(classprint.AttrDisplay):
                 self.planets[bn]['mer_pass_alt'] = Angle(body.alt * 180 / pi)
 
             self.observer.date = localMidn - 0.5
-            
+
             # and finally setting
             try:
                 t =  self.observer.next_setting(body).tuple()
@@ -1284,7 +1283,7 @@ def bigT(ut):
     """Returns number of days (incl. fraction) since 2000-01-01 12:00:00 UT; ut
     is a tuple (Y, M, D, h, m, s)
     """
-   
+
     t = dt.datetime(*ut)
 
     utHrs = t.hour + t.minute/60.0 + t.second/3600.0
@@ -1326,7 +1325,7 @@ def sha(ra):
 
 
 def gha(ra, ut):
-    """Returns GHA for Right Ascension ra (in radians which is how ephem stores them) 
+    """Returns GHA for Right Ascension ra (in radians which is how ephem stores them)
     and ut as (Y, M, D, h, m, s). SHA is provided in degrees incl. decimal fraction.
     """
     return normAngle(ghaAries(ut) + sha(ra))
@@ -1376,7 +1375,7 @@ def localMidnightUT(lat, lon, ut):
     """
     sun = ephem.Sun()
     obs = ephem.Observer()
-    obs.date = ut     
+    obs.date = ut
     obs.lat = radians(lat)
     obs.lon = radians(lon)
 
@@ -1401,7 +1400,7 @@ def localMidnightUT(lat, lon, ut):
 if __name__ == '__main__':
     #    import doctest
     #    doctest.testmod( )
-    
+
     pf = PlanetFinder(lat = -18, lon = -179, ut = (2013, 7, 25, 3, 30, 0))
     print 'Twilight:'
     for key in pf.twilight:
@@ -1425,19 +1424,19 @@ if __name__ == '__main__':
                 print '%s - %s: None' % (p, key)
 
     print pf.observer.date
-    
+
     """
     for STAR_CALC in ['aa', 'ephem']:
-    
+
         outFile = open(STAR_CALC + "_out.csv", 'w')
-        
+
         for lat in [-30, 0, 30]:
 
             for date in [ (2012, 6, 30), (2014, 9, 30), (2016, 12, 31), (2018, 3, 31) ]:
 
                 for h in range(24):
 
-                    sf = StarFinder(list(starcat.navStarObj.keys()), lat = lat, lon = -178, 
+                    sf = StarFinder(list(starcat.navStarObj.keys()), lat = lat, lon = -178,
                         ut = date + (h, 0, 0))
 
                     for s in sf.starData:
@@ -1447,7 +1446,7 @@ if __name__ == '__main__':
                                     starcat.navStarNum[s], s, sd['sha'].decD,
                                     sd['dec'].decD, sd['mag'], sd['alt'].decD,
                                     sd['az'].decD))
-        
+
         outFile.close()
     """
 
@@ -1459,7 +1458,7 @@ if __name__ == '__main__':
             aaSf = aaStarFinder(lat = lat, lon = -178, ut = (2012, 06, 30, h, 0, 0))
             for i in range(58):
                 sd = aaSf.starData[i]
-                aaOutFile.write("%d, %d, %d, %f, %f, %f, %f, %f\n" % (lat, h, i+1, 
+                aaOutFile.write("%d, %d, %d, %f, %f, %f, %f, %f\n" % (lat, h, i+1,
                     sd['sha'].decD, sd['dec'].decD, sd['mag'], sd['alt'], sd['az']))
 
     aaOutFile.close()
@@ -1483,17 +1482,17 @@ if __name__ == '__main__':
     """
     """
     f = Fix(COG = 145, SOG = 4.5, UT = (2013, 06, 28, 6, 2, 30))
-    
-    f.lopList.append(LOP(fix = f, body = "star", starName = "Arcturus", indexError = 0.0, heightOfEye = 1.8, 
+
+    f.lopList.append(LOP(fix = f, body = "star", starName = "Arcturus", indexError = 0.0, heightOfEye = 1.8,
             lat = -(18+36.0/60), lon = -(178+56.0/60), elevation = 0, pressure = 1013, temp = 27))
 
     f.lopList[0].sightList.append(Sight(Hs = (43 + 39.5/60), UT = (2013, 06, 28, 05, 55, 33)))
-    
-    f.lopList.append(LOP(fix = f, body = "Venus", starName = None, indexError = 0.0, heightOfEye = 1.8, 
+
+    f.lopList.append(LOP(fix = f, body = "Venus", starName = None, indexError = 0.0, heightOfEye = 1.8,
             lat = -(18+36.0/60), lon = -(178+56.0/60), elevation = 0, pressure = 1013, temp = 27))
 
     f.lopList[1].sightList.append(Sight(Hs = (18 + 38.8/60), UT = (2013, 06, 28, 05, 45, 36)))
-    
+
     f.lopList[0].lopSightIndex = 0
     f.lopList[1].lopSightIndex = 0
 

@@ -1,7 +1,7 @@
 """Installation file for CelNav source distribution under Linux
 
-Will install: 
-    - Python package celnav 
+Will install:
+    - Python package celnav
     - Python script file to run the application
     - Unix shell script to perform some housekeeping prior to executing Python script
     - Config and ini files
@@ -121,7 +121,7 @@ if 'install' in sys.argv:
             shutil.move(sf, bk)
 
     # ...then the other stuff:
-    for sf in [ os.path.join(SHELL_SCRIPT_DEST_DIR, SHELL_SCRIPT_FILE), 
+    for sf in [ os.path.join(SHELL_SCRIPT_DEST_DIR, SHELL_SCRIPT_FILE),
                 os.path.join(DESKTOP_FILE_DEST_DIR, DESKTOP_FILE),
                 os.path.join(APP_DIR, INI_FILE),
                 os.path.join(APP_DIR, TK_CFG_FILE),
@@ -130,10 +130,10 @@ if 'install' in sys.argv:
 
 # and now the meat:
 setup(  name = 'CelNav',
-        version = '0.2.0',
+        version = '0.2.2',
         description = 'Celestial Navigation for Cruisers',
         author = 'Markus Schweitzer',
-        author_email = 'markus@namaniatsea.net',
+        author_email = 'markus@namaniatsea.org',
         url = 'http://navigatrix.net/viewforum.php?f=21',
         requires = [ 'ephem', 'Tkinter', 'ttk' ],
         provides = [ 'celnav' ],

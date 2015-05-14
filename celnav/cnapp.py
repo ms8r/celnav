@@ -4,14 +4,13 @@
 Celnav application based on basic celnav objects in celnav.py
 """
 
-__author__ = "markus@namaniatsea.net"
-__version__ = "0.2.0"
-__revision__ = "$Id: cnapp.py,v 1.14 2013/08/03 11:03:12 markus Exp markus $"
+__author__ = "markus@namaniatsea.org"
+__version__ = "0.2.2"
 
 
 # external application name and version (displayed in Help->About dialog):
 EXT_APP_NAME = 'CelNav'
-EXT_APP_VERSION = '0.2.0'
+EXT_APP_VERSION = '0.2.2'
 
 # import standard libraries
 from math import *
@@ -39,7 +38,7 @@ import cncfg
 
 #-------------------------------------------------------------------------------------
 # The following parameters can be overwritten in the INI_FILE read by module
-# cncfg: 
+# cncfg:
 #-------------------------------------------------------------------------------------
 
 SECTION_ID = 'cnapp'
@@ -102,16 +101,16 @@ TMP_DIR = None
 
 
 class ValidEntry(ttk.Entry, classprint.AttrDisplay):
-    """Creates a ttk.Entry field and accepts a regex string for validation of 
+    """Creates a ttk.Entry field and accepts a regex string for validation of
     user entry. If the entry does not match the regex upon focus moving away from
-    the widget, an error message will be displayed and focus will remain on the 
+    the widget, an error message will be displayed and focus will remain on the
     widget.
     """
     # TODO: add remaining ttk.Entry options to constructor
-    
-    def __init__(self, master = None, width = 20, style = None, justify = tk.RIGHT, 
+
+    def __init__(self, master = None, width = 20, style = None, justify = tk.RIGHT,
             validateStr = r'^.*$', validate = 'focusout'):
-        
+
         # controlVariable:
         self.cVar = tk.StringVar()
 
@@ -122,10 +121,10 @@ class ValidEntry(ttk.Entry, classprint.AttrDisplay):
         self.validateFun = master.register(self.validateEntry)
         self.invalidFun = master.register(self.invalidEntry)
 
-        ttk.Entry.__init__(self, master, style = style, width = width, justify = justify, 
-                textvariable = self.cVar, validatecommand = self.validateFun, 
+        ttk.Entry.__init__(self, master, style = style, width = width, justify = justify,
+                textvariable = self.cVar, validatecommand = self.validateFun,
                 invalidcommand = self.invalidFun, validate = validate)
-        
+
 
     def validateEntry(self):
         r = re.compile(self.validateStr + '|^$', re.VERBOSE)
@@ -152,7 +151,7 @@ class LabeledEntry(ttk.Frame, classprint.AttrDisplay):
         """
         ttk.Frame.__init__(self, master, class_ = "LabeledEntry", style = frameStyle)
 
-        self.label = ttk.Label(self, text = labelText, justify = tk.RIGHT, 
+        self.label = ttk.Label(self, text = labelText, justify = tk.RIGHT,
                 padding = 5, style = labelStyle)
         self.label.grid(row = 0, column = 0, sticky = tk.E)
 
@@ -166,21 +165,21 @@ class LabeledEntry(ttk.Frame, classprint.AttrDisplay):
     def get(self):
         return self.entry.cVar.get()
 
-    
+
 class AngleEntry(ttk.Frame, classprint.AttrDisplay):
     """Provides a composite entry field for a navigation angle (lat/lon or altitude) as a frame.
 
     The frame will contain three ValidEntry entry fields, one for whole degrees,
-    one for minutes (incl. decimal fraction) and (optionally) one for a sign (see doc-string for 
+    one for minutes (incl. decimal fraction) and (optionally) one for a sign (see doc-string for
     __init__).
     """
 
-    def __init__(self, master = None, frameStyle = None, entryStyle = None, degValidateStr = r"^[0-9]{1,3}$", 
-            minValidateStr = r"^[0-9]{1,2}\.?[0-9]?$", posValidateStr = None, negValidateStr = None, 
-            headerLabel = None, hdrLabelStyle = None, prefixLabel = None, prefixLabelStyle = None, 
+    def __init__(self, master = None, frameStyle = None, entryStyle = None, degValidateStr = r"^[0-9]{1,3}$",
+            minValidateStr = r"^[0-9]{1,2}\.?[0-9]?$", posValidateStr = None, negValidateStr = None,
+            headerLabel = None, hdrLabelStyle = None, prefixLabel = None, prefixLabelStyle = None,
             padding = None):
-        """Calls ttk.Frame consructor and then places ValidEntry fields for deg, min and sign (optionally 
-        - only if negValidateStr is provided) inside the frame. If headerLabel is provided, it will 
+        """Calls ttk.Frame consructor and then places ValidEntry fields for deg, min and sign (optionally
+        - only if negValidateStr is provided) inside the frame. If headerLabel is provided, it will
         be placed above the Entry fields (spanning all of them).
         """
         ttk.Frame.__init__(self, master, class_ = "AngleEntry", padding = padding, style = frameStyle)
@@ -195,19 +194,19 @@ class AngleEntry(ttk.Frame, classprint.AttrDisplay):
 
         currentRow = 0
         if headerLabel != None:
-            hdr = ttk.Label(self, text = headerLabel, justify = tk.CENTER, 
+            hdr = ttk.Label(self, text = headerLabel, justify = tk.CENTER,
                     padding = 5, style = hdrLabelStyle)
-            hdr.grid(row = currentRow, column = 0, columnspan = noFields+2)     # noFields+2 b/c of inserted 
+            hdr.grid(row = currentRow, column = 0, columnspan = noFields+2)     # noFields+2 b/c of inserted
                                                                                 # 'd' and 'm' labels
             currentRow += 1
-            ttk.Separator(self, orient = tk.HORIZONTAL).grid(row = currentRow, column = 0, 
+            ttk.Separator(self, orient = tk.HORIZONTAL).grid(row = currentRow, column = 0,
                     columnspan = noFields+2, sticky = tk.E+tk.W)
             currentRow += 1
 
         currentCol = 0
         if prefixLabel != 1:
-            ttk.Label(self, text = prefixLabel, justify = tk.RIGHT, padding = 5, 
-                    style = prefixLabelStyle).grid(row = currentRow, 
+            ttk.Label(self, text = prefixLabel, justify = tk.RIGHT, padding = 5,
+                    style = prefixLabelStyle).grid(row = currentRow,
                     column = currentCol, sticky = tk.E)
             currentCol += 1
 
@@ -222,7 +221,7 @@ class AngleEntry(ttk.Frame, classprint.AttrDisplay):
         ttk.Label(self, text = "'").grid(row = currentRow, column = currentCol)
         currentCol += 1
         if negValidateStr != None:
-            self.sign = ValidEntry(self, width = 2, justify = tk.LEFT, style = entryStyle, 
+            self.sign = ValidEntry(self, width = 2, justify = tk.LEFT, style = entryStyle,
                     validateStr = posValidateStr + '|' + negValidateStr)
             self.sign.grid(row = currentRow, column = currentCol)
         else:
@@ -233,9 +232,9 @@ class AngleEntry(ttk.Frame, classprint.AttrDisplay):
 
 
     def set(self, angle):
-        """sets control variables for each field according to angle which must 
-        be a tuple (deg, min, sign). The character to be used to indicate the 
-        sign (e.g. 'W' for negative longitude) will be taken from the posValidateStr / 
+        """sets control variables for each field according to angle which must
+        be a tuple (deg, min, sign). The character to be used to indicate the
+        sign (e.g. 'W' for negative longitude) will be taken from the posValidateStr /
         negValidateStr regexes (first character matching [A-Z]).
         """
         self.deg.cVar.set("%d" % (angle[0]))
@@ -249,7 +248,7 @@ class AngleEntry(ttk.Frame, classprint.AttrDisplay):
 
     def get(self):
         """Returns tuple (deg, min, sign) with each element set to corresponding
-        Entry control variable. If there is no sign entry field, sign will be set 
+        Entry control variable. If there is no sign entry field, sign will be set
         to +1
         """
         deg = int(self.deg.cVar.get())
@@ -287,37 +286,37 @@ class DateEntry(ttk.Frame, classprint.AttrDisplay):
 
         currentRow = 0
         if headerLabel != None:
-            hdr = ttk.Label(self, text = headerLabel, justify = tk.CENTER, 
+            hdr = ttk.Label(self, text = headerLabel, justify = tk.CENTER,
                     padding = 5, style = hdrLabelStyle)
             hdr.grid(row = currentRow, column = 0, columnspan = noFields)
             currentRow += 1
-            ttk.Separator(self, orient = tk.HORIZONTAL).grid(row = currentRow, column = 0, 
+            ttk.Separator(self, orient = tk.HORIZONTAL).grid(row = currentRow, column = 0,
                     columnspan = noFields, sticky = tk.E+tk.W)
             currentRow += 1
-        
+
         currentCol = 0
         if prefixLabel != 1:
-            ttk.Label(self, text = prefixLabel, justify = tk.RIGHT, padding = 5, 
-                    style = prefixLabelStyle).grid(row = currentRow, 
+            ttk.Label(self, text = prefixLabel, justify = tk.RIGHT, padding = 5,
+                    style = prefixLabelStyle).grid(row = currentRow,
                     column = currentCol, sticky = tk.E)
             currentCol += 1
 
         self.year = ValidEntry(self, width = 4, style = entryStyle, validateStr = r'^[0-9]{4,4}$')
         self.year.grid(row = currentRow, column = currentCol)
         currentCol += 1
-        ttk.Label(self, text = '/').grid(row = currentRow, column = currentCol) 
+        ttk.Label(self, text = '/').grid(row = currentRow, column = currentCol)
         currentCol += 1
         self.month = ValidEntry(self, width = 2, style = entryStyle, validateStr = r'^[0-1]?[0-9]$')
         self.month.grid(row = currentRow, column = currentCol)
         currentCol += 1
-        ttk.Label(self, text = '/').grid(row = currentRow, column = currentCol) 
+        ttk.Label(self, text = '/').grid(row = currentRow, column = currentCol)
         currentCol += 1
         self.day = ValidEntry(self, width = 2, style = entryStyle, validateStr = r'^[0-3]?[0-9]$')
         self.day.grid(row = currentRow, column = currentCol)
         currentCol += 1
 
     def set(self, date):
-        """sets control variables for each field according to date which must 
+        """sets control variables for each field according to date which must
         be a tuple (Y, M, D)
         """
         self.year.cVar.set("%d" % (date[0]))
@@ -353,52 +352,52 @@ class TimeEntry(ttk.Frame, classprint.AttrDisplay):
 
         currentRow = 0
         if headerLabel != None:
-            hdr = ttk.Label(self, text = headerLabel, justify = tk.CENTER, 
+            hdr = ttk.Label(self, text = headerLabel, justify = tk.CENTER,
                     padding = 5, style = hdrLabelStyle)
             hdr.grid(row = currentRow, column = 0, columnspan = noFields)
             currentRow += 1
-            ttk.Separator(self, orient = tk.HORIZONTAL).grid(row = currentRow, column = 0, 
+            ttk.Separator(self, orient = tk.HORIZONTAL).grid(row = currentRow, column = 0,
                     columnspan = noFields, sticky = tk.E+tk.W)
             currentRow += 1
-        
+
         currentCol = 0
         if prefixLabel != 1:
-            ttk.Label(self, text = prefixLabel, justify = tk.RIGHT, padding = 5, 
-                    style = prefixLabelStyle).grid(row = currentRow, 
+            ttk.Label(self, text = prefixLabel, justify = tk.RIGHT, padding = 5,
+                    style = prefixLabelStyle).grid(row = currentRow,
                     column = currentCol, sticky = tk.E)
             currentCol += 1
 
         self.year = ValidEntry(self, width = 4, style = entryStyle, validateStr = r'^[0-9]{4,4}$')
         self.year.grid(row = currentRow, column = currentCol)
         currentCol += 1
-        ttk.Label(self, text = '/').grid(row = currentRow, column = currentCol) 
+        ttk.Label(self, text = '/').grid(row = currentRow, column = currentCol)
         currentCol += 1
         self.month = ValidEntry(self, width = 2, style = entryStyle, validateStr = r'^[0-1]?[0-9]$')
         self.month.grid(row = currentRow, column = currentCol)
         currentCol += 1
-        ttk.Label(self, text = '/').grid(row = currentRow, column = currentCol) 
+        ttk.Label(self, text = '/').grid(row = currentRow, column = currentCol)
         currentCol += 1
         self.day = ValidEntry(self, width = 2, style = entryStyle, validateStr = r'^[0-3]?[0-9]$')
         self.day.grid(row = currentRow, column = currentCol)
         currentCol += 1
-        ttk.Label(self, text = '-').grid(row = currentRow, column = currentCol) 
+        ttk.Label(self, text = '-').grid(row = currentRow, column = currentCol)
         currentCol += 1
         self.hour = ValidEntry(self, width = 2, style = entryStyle, validateStr = r'^[0-2]?[0-9]$')
         self.hour.grid(row = currentRow, column = currentCol)
         currentCol += 1
-        ttk.Label(self, text = ':').grid(row = currentRow, column = currentCol) 
+        ttk.Label(self, text = ':').grid(row = currentRow, column = currentCol)
         currentCol += 1
         self.minute = ValidEntry(self, width = 2, style = entryStyle, validateStr = r'^[0-5]?[0-9]$')
         self.minute.grid(row = currentRow, column = currentCol)
         currentCol += 1
-        ttk.Label(self, text = ':').grid(row = currentRow, column = currentCol) 
+        ttk.Label(self, text = ':').grid(row = currentRow, column = currentCol)
         currentCol += 1
         self.second = ValidEntry(self, width = 2, style = entryStyle, validateStr = r'^[0-5]?[0-9]$')
         self.second.grid(row = currentRow, column = currentCol)
         currentCol += 1
 
     def set(self, time):
-        """sets control variables for each field according to time which must 
+        """sets control variables for each field according to time which must
         be a tuple (Y, M, D, h, m, s)
         """
         self.year.cVar.set("%d" % (time[0]))
@@ -432,14 +431,14 @@ class BodyComboBox(ttk.Frame, classprint.AttrDisplay):
         ttk.Frame.__init__(self, master, class_ = "BodyListBox", style = frameStyle)
 
         ll = master.register(self.listLink)
-        
-        self.bodyDropDown = ttk.Combobox(self, values = celnav.bodyList[:], 
+
+        self.bodyDropDown = ttk.Combobox(self, values = celnav.bodyList[:],
                 validatecommand = ll, validate = 'all', width = 6, justify = tk.LEFT)
         self.bodyDropDown.current(0)
         self.bodyDropDown.state(['readonly'])
         self.bodyDropDown.grid(row = 0, column = 0, sticky = tk.W)
-        
-        self.starDropDown = ttk.Combobox(self, values = celnav.starList, 
+
+        self.starDropDown = ttk.Combobox(self, values = celnav.starList,
                 width = 12, justify = tk.LEFT)
         self.starDropDown.current(0)
         self.starDropDown.state(['disabled'])
@@ -504,7 +503,7 @@ class AppMenuBar(tk.Menu, classprint.AttrDisplay):
         self.helpMenu.add_command(label = 'About', command = self.__aboutHandler)
 
     def __aboutHandler(self):
-        aboutStr = ('%s %s: Electronic almanac and sight reduction for celestial navigation on small vessels.\n' 
+        aboutStr = ('%s %s: Electronic almanac and sight reduction for celestial navigation on small vessels.\n'
                 % (EXT_APP_NAME, EXT_APP_VERSION))
         aboutStr += 'Use at your own risk!\n'
         aboutStr += 'Comments, bugs, suggestions: markus@namaniatsea.net'
@@ -514,11 +513,11 @@ class AppMenuBar(tk.Menu, classprint.AttrDisplay):
         self.top.destroy()
 
     def __openLogHandler(self):
-        os.spawnv(os.P_NOWAIT, SPREADSHEET_PATH, [SPREADSHEET_PATH, 
+        os.spawnv(os.P_NOWAIT, SPREADSHEET_PATH, [SPREADSHEET_PATH,
             os.path.join(APP_DIR, LOG_FILE)])
 
     def __openIniHandler(self):
-        os.spawnv(os.P_NOWAIT, EDITOR_PATH, [EDITOR_PATH, 
+        os.spawnv(os.P_NOWAIT, EDITOR_PATH, [EDITOR_PATH,
             os.path.join(cncfg.INI_DIR, cncfg.INI_FILE)])
 
     def __cnHelpHandler(self):
@@ -538,13 +537,13 @@ class Application(ttk.Frame, classprint.AttrDisplay):
         """Reads config file and sets up Notebook tabs
         """
         global TMP_DIR
-        
+
         ttk.Frame.__init__(self, master)
         self.grid()
 
         # read Tkinter config file if it exists
         cfgFileStr = os.path.join(APP_DIR, CFG_FILE)
-        if os.access(cfgFileStr, os.F_OK):    
+        if os.access(cfgFileStr, os.F_OK):
             self.option_readfile(cfgFileStr)
 
         self.nb = ttk.Notebook(self)
@@ -561,7 +560,7 @@ class Application(ttk.Frame, classprint.AttrDisplay):
 
         # add menu bar
         self.menubar = AppMenuBar(self.winfo_toplevel())
-    
+
         # get screen dimensions and set initial maxsize for toplevel window accordingly
         # top = self.winfo_toplevel()
         # top.maxsize(height = self.winfo_screenheight(), width = self.winfo_screenwidth())
@@ -570,7 +569,7 @@ class Application(ttk.Frame, classprint.AttrDisplay):
         # bind clean-up to 'Destroy' event:
         self.bind('<Destroy>', self.__exitHandler)
         self.needToCleanUp = True
-        
+
         # create tmp directory:
         TMP_DIR = tempfile.mkdtemp(prefix = 'cnapp_')
 
@@ -594,7 +593,7 @@ class Application(ttk.Frame, classprint.AttrDisplay):
             except:
                 warningStr = "Could not completely remove temporary directory %s" % TMP_DIR
                 tMB.showwarning(title = "CelNav Warning", message = warningStr, icon = tMB.WARNING)
-            
+
             self.needToCleanUp = False
 
 
@@ -602,27 +601,27 @@ class Application(ttk.Frame, classprint.AttrDisplay):
         """Handles configure events on top level window in order to display/hide
         scrollbars depending on window size
         """
-        
+
         top = self.winfo_toplevel()
-        
+
         # get screen dimensions and reset maxsize for toplevel window accordingly;
         # width will be restricted by the smaller of screenwidth and width of AppFix frame
         reqHeight = self.winfo_reqheight()
         reqWidth = self.winfo_reqwidth()
-                
+
         maxHeight = (self.winfo_screenheight() - 60)    # leave some space for task/toolbar at bottom
         maxWidth = min(self.winfo_screenwidth(), reqWidth)
-        
+
         top.maxsize(width = maxWidth, height = maxHeight)
-       
+
         # if reqHeight < event.height:
         #     curTopGeoTuple = self.__geo2tuple(top.geometry())
-        #     newTopGeoStr = "%dx%d%+d%+d" % (min(maxWidth, reqWidth, event.width), 
+        #     newTopGeoStr = "%dx%d%+d%+d" % (min(maxWidth, reqWidth, event.width),
         #            min(reqHeight, maxHeight), curTopGeoTuple[2], curTopGeoTuple[3])
         #    top.geometry(newTopGeoStr)
-    
+
         # print self.configureCount, reqHeight, event.height
-        
+
 
     def __geo2tuple(self, geoStr):
         """turns a Tk geometry string of the form 'wxh+/-x+/-y' into a tuple (w, h, x, y)
@@ -651,7 +650,7 @@ class AppFix(ttk.Frame, celnav.Fix, classprint.AttrDisplay):
         first Shight
         """
         ttk.Frame.__init__(self, master)
-        celnav.Fix.__init__(self) 
+        celnav.Fix.__init__(self)
 
         # lists /control variables for LOP management:
         self.lopAddDelFrameList = []                            # list of frames containing "+/-" buttons (1 per LOP)
@@ -664,11 +663,11 @@ class AppFix(ttk.Frame, celnav.Fix, classprint.AttrDisplay):
 
         ttk.Label(self, class_ = "FrameTitle", text = "Fix").grid(row = currentRow, column = currentCol, sticky = tk.W)
         currentCol += 1
-        
+
         self.sogDisp = LabeledEntry(self, labelText = "SOG [kn]:", entryWidth = 5, entryValidateStr = r'^[0-9]{1,3}\.?[0-9]?$')
         self.sogDisp.grid(row = currentRow, column = currentCol)
         currentCol += 1
-        
+
         self.cogDisp = LabeledEntry(self, labelText = "COG [" + u'\xb0' + "T]:", entryWidth = 3, entryValidateStr = r'^[0-9]{1,3}$')
         self.cogDisp.grid(row = currentRow, column = currentCol)
         currentCol += 1
@@ -677,7 +676,7 @@ class AppFix(ttk.Frame, celnav.Fix, classprint.AttrDisplay):
         self.fixUTDisp.grid(row = currentRow, column = currentCol)
         currentCol += 1
 
-        self.fixPosDisp = ttk.Label(self, class_ = "FixPosDisplay", anchor = tk.E, borderwidth = 3, 
+        self.fixPosDisp = ttk.Label(self, class_ = "FixPosDisplay", anchor = tk.E, borderwidth = 3,
                 relief = tk.RIDGE, foreground = "blue", text = "position: N/A")
         self.fixPosDisp.grid(row = currentRow, column = currentCol, sticky = tk.E)
         currentCol += 1
@@ -707,8 +706,8 @@ class AppFix(ttk.Frame, celnav.Fix, classprint.AttrDisplay):
 
 
     def calcFixCallback(self):
-        """Callback for Calculate Fix' button; calls reduceSightCallback for each LOP, 
-        updates Sights and LOPs from entry fields,  and 
+        """Callback for Calculate Fix' button; calls reduceSightCallback for each LOP,
+        updates Sights and LOPs from entry fields,  and
         then uses Fix.__calc2LLPFix() and subsequently updates display.
         """
         for lop in self.lopList:
@@ -732,8 +731,8 @@ class AppFix(ttk.Frame, celnav.Fix, classprint.AttrDisplay):
 
 
     def addLOP(self):
-        """Adds an new LOP frame, creates and grids "+/-" buttons, removes "+/-" buttons on 
-        AppLOP above (will be remembered for future re-gridding). 
+        """Adds an new LOP frame, creates and grids "+/-" buttons, removes "+/-" buttons on
+        AppLOP above (will be remembered for future re-gridding).
         """
         global INITIAL_LAT, INITIAL_LON
 
@@ -754,7 +753,7 @@ class AppFix(ttk.Frame, celnav.Fix, classprint.AttrDisplay):
         # hide all previous "+/-" buttons
         for j in range(i):
             self.lopAddDelFrameList[j].grid_remove()
-        
+
         # create and grid new "+/-" button frame
         if i > 0: delButton = True
         else: delButton = False
@@ -860,7 +859,7 @@ class AppFix(ttk.Frame, celnav.Fix, classprint.AttrDisplay):
         ]
 
     def __writeLog(self):
-        """Writes log entry with all dcurrently available data 
+        """Writes log entry with all dcurrently available data
         """
         global CSV_COLSEP
 
@@ -881,24 +880,24 @@ class AppFix(ttk.Frame, celnav.Fix, classprint.AttrDisplay):
         # time stamp
         timeStamp = "%04d/%02d/%02d,%02d:%02d:%02d" % dt.datetime.utcnow().timetuple()[:6]
         # fix SOG, COG, UT
-        fixStr = "%.1f, %d" % (self.SOG, int(round(self.COG.decD)))    
-        fixStr += ", %04d/%02d/%02d,%02d:%02d:%02d" % self.UT    
+        fixStr = "%.1f, %d" % (self.SOG, int(round(self.COG.decD)))
+        fixStr += ", %04d/%02d/%02d,%02d:%02d:%02d" % self.UT
         #fix Lat
-        fixStr += ",%f" % self.lat.decD 
-        fixStr += ",%d,%f,%d" % self.lat.degMin 
+        fixStr += ",%f" % self.lat.decD
+        fixStr += ",%d,%f,%d" % self.lat.degMin
         #fix Lon
-        fixStr += ",%f" % self.lon.decD 
-        fixStr += ",%d,%f,%d" % self.lon.degMin 
+        fixStr += ",%f" % self.lon.decD
+        fixStr += ",%d,%f,%d" % self.lon.degMin
 
         for (lopNr, lop) in enumerate(self.lopList):
             # lop number, body and star
             lopStr = "%d,%s,%s" % (lopNr+1, lop.body, lop.starName)
             # AP Lat
             lopStr += ",%f" % lop.observer.latDecD()
-            lopStr += ",%d,%f,%d" % lop.observer.latTuple() 
+            lopStr += ",%d,%f,%d" % lop.observer.latTuple()
             # AP Lon
             lopStr += ",%f" % lop.observer.lonDecD()
-            lopStr += ",%d,%f,%d" % lop.observer.lonTuple() 
+            lopStr += ",%d,%f,%d" % lop.observer.lonTuple()
             # hoe, ie, press, temp
             lopStr += ",%.1f,%.1f,%.1f,%.1f" % (lop.observer.heightOfEye, lop.observer.indexError.decD * 60,
                     lop.observer.pressure, lop.observer.temp)
@@ -910,17 +909,17 @@ class AppFix(ttk.Frame, celnav.Fix, classprint.AttrDisplay):
                 sightStr += ",%f,%f,%d" % (s.Ic, s.srfIc, int(round(s.Az.decD)))
                 if sNr == lop.lopSightIndex: sightStr += ", 1"
                 else: sightStr += ",0"
-                
+
                 logFile.write("%s,%s,%s,%s\n" % (timeStamp, fixStr, lopStr, sightStr))
-                
+
         logFile.close()
-        
+
 
 class AppLOP(ttk.Frame, celnav.LOP, classprint.AttrDisplay):
     """Customizes celnav.Sight to interact with GUI
     """
 
-    def __init__(self, master = None, body = 'Sun LL', starName = None, indexError = 0, 
+    def __init__(self, master = None, body = 'Sun LL', starName = None, indexError = 0,
             heightOfEye = 0, lat = INITIAL_LAT, lon = INITIAL_LON, elevation = 0, temp = 20, pressure = 1010,
             lopNumber = 0):
         """Calls ttk.Frame and celnav.Sight constructors, creates control variables and
@@ -928,7 +927,7 @@ class AppLOP(ttk.Frame, celnav.LOP, classprint.AttrDisplay):
         first Shot
         """
         ttk.Frame.__init__(self, master, borderwidth = 3, relief = tk.GROOVE)
-        celnav.LOP.__init__(self, fix = master, body = body, starName = starName, indexError = indexError, 
+        celnav.LOP.__init__(self, fix = master, body = body, starName = starName, indexError = indexError,
                 heightOfEye = heightOfEye, lat = lat, lon = lon, elevation = elevation,
                 temp = temp, pressure = pressure)
 
@@ -942,8 +941,8 @@ class AppLOP(ttk.Frame, celnav.LOP, classprint.AttrDisplay):
         #  create and place entry widgets:
         currentRow = 0
         currentCol = 0
-        
-        ttk.Label(self, text = "LOP #%d" % (lopNumber+1), class_ = "FrameTitle").grid(row = currentRow, 
+
+        ttk.Label(self, text = "LOP #%d" % (lopNumber+1), class_ = "FrameTitle").grid(row = currentRow,
                 column = currentCol, sticky = tk.W)
         currentCol += 1
 
@@ -962,32 +961,32 @@ class AppLOP(ttk.Frame, celnav.LOP, classprint.AttrDisplay):
         currentCol += 1
 
         # Height of eye
-        self.hoeEntry = LabeledEntry(self, labelText = "Height of eye:\n[meter]", entryWidth = 3, 
+        self.hoeEntry = LabeledEntry(self, labelText = "Height of eye:\n[meter]", entryWidth = 3,
             entryValidateStr = r"^[0-9][0-9]*\.?[0-9]?$")
         self.hoeEntry.grid(row = currentRow, column = currentCol, sticky = tk.W)
         currentCol += 1
-        
+
         # index error
-        self.ieEntry = LabeledEntry(self, labelText = "Index error:\n[minutes]", entryWidth = 4, 
+        self.ieEntry = LabeledEntry(self, labelText = "Index error:\n[minutes]", entryWidth = 4,
             entryValidateStr = r"^[+-]?[0-9]\.?[0-9]?$")
         self.ieEntry.grid(row = currentRow, column = currentCol, sticky = tk.W)
         currentCol += 1
 
         # pressure
-        self.pressureEntry = LabeledEntry(self, labelText = "pressure:\n[mbar]", entryWidth = 4, 
+        self.pressureEntry = LabeledEntry(self, labelText = "pressure:\n[mbar]", entryWidth = 4,
             entryValidateStr = r"^[0-9]{3,4}$")
         self.pressureEntry.grid(row = currentRow, column = currentCol, sticky = tk.W)
         currentCol += 1
 
         # temperature
-        self.tempEntry = LabeledEntry(self, labelText = "temp.:\n[deg C]", entryWidth = 3, 
+        self.tempEntry = LabeledEntry(self, labelText = "temp.:\n[deg C]", entryWidth = 3,
             entryValidateStr = r"^[-]?[0-9]{1,2}$")
         self.tempEntry.grid(row = currentRow, column = currentCol, sticky = tk.W)
         currentCol += 1
 
         # place heading for Sight selection radio buttons under last column
         currentRow +=1
-        self.sightForFixLabel = ttk.Label(self, text = "Use for Fix?", justify = tk.CENTER, 
+        self.sightForFixLabel = ttk.Label(self, text = "Use for Fix?", justify = tk.CENTER,
                 padding = 5)
         self.sightForFixLabel.grid(row = currentRow, column = currentCol-1)
 
@@ -995,22 +994,22 @@ class AppLOP(ttk.Frame, celnav.LOP, classprint.AttrDisplay):
         self.__attr2entry()
 
         # place "Reduce sights" button in last but one column:
-        self.reduceSightsButton = ttk.Button(self, text="Reduce Sights", command = self.reduceSightsCallback, 
+        self.reduceSightsButton = ttk.Button(self, text="Reduce Sights", command = self.reduceSightsCallback,
                 padding = 3)
         self.reduceSightsButton.grid(row = currentRow, column = currentCol-2, pady=3)
 
         # place "Hide Sights" button in col 1
-        self.showHideSightsButton = ttk.Button(self, text="Hide Sights", command = self.__hideSights, 
+        self.showHideSightsButton = ttk.Button(self, text="Hide Sights", command = self.__hideSights,
                 padding = 3)
         self.showHideSightsButton.grid(row = currentRow, column = 1, pady=3, sticky = tk.W)
- 
+
         # create label for Ic/Az display when sights are hidden; gridded and removed right away,
         # will be switched on and off by self.__hideSights() and self.__showSights
-        self.IcAzDisp = ttk.Label(self, class_ = "IcAzDisplay", anchor = tk.E, borderwidth = 5, 
+        self.IcAzDisp = ttk.Label(self, class_ = "IcAzDisplay", anchor = tk.E, borderwidth = 5,
                 foreground = "blue", text = "Ic, Az: N/A", justify = tk.CENTER)
         self.IcAzDisp.grid(row = currentRow, column = 2, columnspan = currentCol-4)
         self.IcAzDisp.grid_remove()
-        
+
         currentRow += 1
 
         # set up AppSights, add initial sight
@@ -1024,8 +1023,8 @@ class AppLOP(ttk.Frame, celnav.LOP, classprint.AttrDisplay):
     def reduceSightsCallback(self):
         """Updates inherited celnav.LOP attributes from widget values and does the same for
         each sight in self.sightList. Also updates Fix attributs from widget value in order
-        to calculate MOO correction. Calls self.calcIcAz() to reduce sights and update Ic 
-        and Az values for each sight in self.sightList. Finally, updates widgets in LOP and 
+        to calculate MOO correction. Calls self.calcIcAz() to reduce sights and update Ic
+        and Az values for each sight in self.sightList. Finally, updates widgets in LOP and
         each sight in self.sightList() to reflect calculated values.
         """
         self.fix.fixEntry2Attr()
@@ -1034,23 +1033,23 @@ class AppLOP(ttk.Frame, celnav.LOP, classprint.AttrDisplay):
 
         for sight in self.sightList:
             sight.sightEntry2Attr()
-        
+
         self.calcIcAz()
 
         self.__attr2entry()
 
         for sight in self.sightList:
             sight.sightAttr2Entry()
-        
+
     def lopEntry2Attr(self):        # TODO: replace wrapper + internal by external
         self.__entry2attr()
 
-    def lopAttr2Entry(self):         # TODO: replace wrapper + internal by external                               
+    def lopAttr2Entry(self):         # TODO: replace wrapper + internal by external
         self.__attr2entry()
 
     def __entry2attr(self):
         """Updates the attributes inherited from celnav.LOP based on current widget entries.
-        Note that self.sightList is automatically maintained via self.addSight() and 
+        Note that self.sightList is automatically maintained via self.addSight() and
         self.delSight() (plus AppSight. __entry2attr()).
         """
         bodyStarSel = self.bodyStarDropDown.getSelection()   # tuple (body, star name, star num)
@@ -1089,7 +1088,7 @@ class AppLOP(ttk.Frame, celnav.LOP, classprint.AttrDisplay):
         """
         # append and grid new AppSight
         i = len(self.sightList)
-        
+
         if i > 0:       # initialize with previous Hs, UT values
             self.sightList[i-1].sightEntry2Attr()
             self.sightList.append(AppSight(master = self, sightNumber = i, Hs = self.sightList[i-1].Hs.decD,
@@ -1098,11 +1097,11 @@ class AppLOP(ttk.Frame, celnav.LOP, classprint.AttrDisplay):
             self.sightList.append(AppSight(master = self, sightNumber = i))
 
         self.sightList[i].grid(row = self.firstSightRow+i, column = 1, columnspan = self.sightColSpan, sticky = tk.E+tk.W)
-        
+
         # hide all previous "+/-" buttons
         for j in range(i):
             self.sightAddDelFrameList[j].grid_remove()
-        
+
         # create and grid new "+/-" button frame
         if i > 0: delButton = True
         else: delButton = False
@@ -1138,7 +1137,7 @@ class AppLOP(ttk.Frame, celnav.LOP, classprint.AttrDisplay):
 
 
     def __hideSights(self):
-        """Hides all AppSight frames under current LOP. 
+        """Hides all AppSight frames under current LOP.
         Also changes text and callback assignment for self.showHideSightsButton.
         """
         n = len(self.sightList)
@@ -1182,7 +1181,7 @@ class AddDelFrame(ttk.Frame, classprint.AttrDisplay):
     """
     def __init__(self, master = None, frameStyle = None, addCallback = None, delCallback = None,
             buttonStyle = None, delButton = False):
-        
+
         ttk.Frame.__init__(self, master, style = frameStyle, class_ = "AddDelFrame")
 
         ttk.Button(self, text = "+", width = 3, command = addCallback, style = buttonStyle).grid()
@@ -1197,7 +1196,7 @@ class AppSight(ttk.Frame, celnav.Sight, classprint.AttrDisplay):
     def __init__(self, master = None, Hs = 0, UT = None, sightNumber = 0):
         """sightNumber is the 0-based index of this Sight instance in the LOP's sightList
         """
-        
+
         # First call super class contructors
         ttk.Frame.__init__(self, master, borderwidth = 3, relief = tk.GROOVE)
         celnav.Sight.__init__(self, Hs = Hs, UT = UT)
@@ -1205,8 +1204,8 @@ class AppSight(ttk.Frame, celnav.Sight, classprint.AttrDisplay):
         #  create and place entry widgets:
         currentRow = 0
         currentCol = 0
-        
-        ttk.Label(self, text = "Sight #%d" % (sightNumber+1), 
+
+        ttk.Label(self, text = "Sight #%d" % (sightNumber+1),
                 class_ = "FrameTitle").grid(row = currentRow, column = currentCol, sticky = tk.W)
         currentCol += 1
 
@@ -1222,7 +1221,7 @@ class AppSight(ttk.Frame, celnav.Sight, classprint.AttrDisplay):
         currentCol += 1
 
         # display Intercepts and Azimuth
-        self.IcAzDisp = ttk.Label(self, class_ = "IcAzDisplay", anchor = tk.E, borderwidth = 5, 
+        self.IcAzDisp = ttk.Label(self, class_ = "IcAzDisplay", anchor = tk.E, borderwidth = 5,
                 foreground = "blue", text = "Ic, Az: N/A")
         self.IcAzDisp.grid(row = currentRow, column = currentCol)
         currentCol += 1
@@ -1236,15 +1235,15 @@ class AppSight(ttk.Frame, celnav.Sight, classprint.AttrDisplay):
 
     def sightAttr2Entry(self):      # TODO: replace wrapper + internal by one external (required for sightList updates by LOP)
         self.__attr2entry()
-    
-    
+
+
     def __entry2attr(self):
         """Updates the attributes inherited from celnav.Sight based on current widget entries.
         Does not update self.includeInFix (is done by LOP)
         """
         self.Hs.degMin = self.HsEntry.get()
         self.UT = self.UTEntry.get()
-        
+
     def __attr2entry(self):
         """Updates values shown in entry fields based on current values of inherited celnav.Sight
         attributes
@@ -1255,7 +1254,7 @@ class AppSight(ttk.Frame, celnav.Sight, classprint.AttrDisplay):
 
 
     def updateIcAzDisplay(self, widget):
-        """Updates sight's Ic, short run fix Ic, and Azimuth display in Sight frame based on current 
+        """Updates sight's Ic, short run fix Ic, and Azimuth display in Sight frame based on current
         self.Ic, self.srfIc and self.Az. Does not reduce sight.
         Widget is the Label which is to be updated.
         """
@@ -1274,7 +1273,7 @@ class AppSight(ttk.Frame, celnav.Sight, classprint.AttrDisplay):
         AzStr = "Az = %03d%sT" % (int(round(self.Az.decD)), u'\xb0')
 
         widget.configure(text = ("  %s    %s    %s" % (IcStr, srfIcStr, AzStr)))
-        
+
 
 class AppAlmanac(ttk.Frame, celnav.SunMoonRiseSet, classprint.AttrDisplay):
     """Provides entry fields for lat, lon and UT and displays table with data
@@ -1320,18 +1319,18 @@ class AppAlmanac(ttk.Frame, celnav.SunMoonRiseSet, classprint.AttrDisplay):
     # body sequence used to iterate over the differemnt planed data
     # dictionaries via self.__dict__
     alPgBodySeq = ('aries', 'sun', 'moon', 'venus', 'mars', 'jupiter', 'saturn')
-    
+
     alPgBodyLabelMap = {
-            'aries' : 'Aries', 
-            'sun' : 'Sun', 
-            'moon' : 'Moon', 
-            'venus' : 'Venus', 
-            'mars' : 'Mars', 
-            'jupiter' : 'Jupiter', 
+            'aries' : 'Aries',
+            'sun' : 'Sun',
+            'moon' : 'Moon',
+            'venus' : 'Venus',
+            'mars' : 'Mars',
+            'jupiter' : 'Jupiter',
             'saturn' : 'Saturn'
             }
 
-    alPgKeyLabelMap = {         
+    alPgKeyLabelMap = {
             'gha' : 'GHA',
             'dec' : 'Dec',
             'hp' : 'HP'
@@ -1339,7 +1338,7 @@ class AppAlmanac(ttk.Frame, celnav.SunMoonRiseSet, classprint.AttrDisplay):
 
     def __init__(self, master = None):
         """Calls ttk.Frame and celnav.SunMoonRiseSet constructors, creates
-        control varaiales and links them to celnav.SunMoonRiseSet attributes,       
+        control varaiales and links them to celnav.SunMoonRiseSet attributes,
         places entry and label widgets in frame and calculates attributes for
         default lat/lon of 0/0 for current UT.
         """
@@ -1347,13 +1346,13 @@ class AppAlmanac(ttk.Frame, celnav.SunMoonRiseSet, classprint.AttrDisplay):
 
         ut = dt.datetime.utcnow().timetuple()[:6]
         celnav.SunMoonRiseSet.__init__(self, lat = INITIAL_LAT, lon =
-                INITIAL_LON, ut = ut)    
+                INITIAL_LON, ut = ut)
 
         # dictionaries for control variables; keys will be same as in
         # celnav.SunMoonRiseSet.sun.data and celnav.SunMoonRiseSet.moon.data
         self.cVarDictSun = {}
         self.cVarDictMoon = {}
-        
+
         # create and place entry widgets and buttons:
         currentRow = 0
         currentCol = 0
@@ -1382,23 +1381,23 @@ class AppAlmanac(ttk.Frame, celnav.SunMoonRiseSet, classprint.AttrDisplay):
         self.attr2entry()
 
         # button for data update
-        self.updateButton = ttk.Button(ef, text="Update Display", command = self.updateDataCallback, 
+        self.updateButton = ttk.Button(ef, text="Update Display", command = self.updateDataCallback,
                 padding = 3)
         self.updateButton.grid(row = frameRow, column = frameCol, pady=3, sticky = tk.E)
         frameCol += 1
-        
+
         # button for generating almanac page
-        self.genAlmPgButton = ttk.Button(ef, text="Almanac Page", command = self.genAlmPgCallback, 
+        self.genAlmPgButton = ttk.Button(ef, text="Almanac Page", command = self.genAlmPgCallback,
                 padding = 3)
         self.genAlmPgButton.grid(row = frameRow, column = frameCol, pady=3, padx=3, sticky = tk.E)
         frameCol += 1
 
         # button for generating star data
-        self.genStarDataButton = ttk.Button(ef, text="Star Data", command = self.genStarDataCallback, 
+        self.genStarDataButton = ttk.Button(ef, text="Star Data", command = self.genStarDataCallback,
                 padding = 3)
         self.genStarDataButton.grid(row = frameRow, column = frameCol, pady=3, padx=3, sticky = tk.E)
         frameCol += 1
-        
+
         currentRow += 1
         currentCol = 0
         # now tables with data (placed inside frame so we can control table
@@ -1407,7 +1406,7 @@ class AppAlmanac(ttk.Frame, celnav.SunMoonRiseSet, classprint.AttrDisplay):
         tf.grid(row = currentRow, column = currentCol, sticky = tk.W+tk.E)
         tfRow = 0
         tfCol = 0
-       
+
         # self.dataTableFrame = ttk.Frame(self, borderwidth = 3, relief = tk.GROOVE, padding = 10)
         frameLabel = ttk.Label(tf, class_ = 'LabelFrameLabel', text = 'Rise, Set & Transits')
         self.dataTableFrame = ttk.LabelFrame(tf, labelwidget = frameLabel, padding = 10)
@@ -1428,10 +1427,10 @@ class AppAlmanac(ttk.Frame, celnav.SunMoonRiseSet, classprint.AttrDisplay):
             key = self.tableDataKeyMap[i]['sun']
             self.cVarDictSun[key] = tk.StringVar()
             if key == 'sd':
-                ttk.Label(dtf, textvariable = self.cVarDictSun[key]).grid(row = i+1, 
+                ttk.Label(dtf, textvariable = self.cVarDictSun[key]).grid(row = i+1,
                         column = 1 )
             else:
-                ttk.Label(dtf, textvariable = self.cVarDictSun[key], class_ = 'TableCell').grid(row = i+1, 
+                ttk.Label(dtf, textvariable = self.cVarDictSun[key], class_ = 'TableCell').grid(row = i+1,
                         column = 1, sticky = tk.E)
 
         # ... and finally moon data...
@@ -1440,11 +1439,11 @@ class AppAlmanac(ttk.Frame, celnav.SunMoonRiseSet, classprint.AttrDisplay):
             if key != None:
                 self.cVarDictMoon[key] = tk.StringVar()
                 if key == 'sd':
-                    ttk.Label(dtf, textvariable = self.cVarDictMoon[key]).grid(row = i+1, 
+                    ttk.Label(dtf, textvariable = self.cVarDictMoon[key]).grid(row = i+1,
                             column = 2)
                 else:
-                    ttk.Label(dtf, textvariable = self.cVarDictMoon[key], 
-                            class_ = 'TableCell').grid(row = i+1, 
+                    ttk.Label(dtf, textvariable = self.cVarDictMoon[key],
+                            class_ = 'TableCell').grid(row = i+1,
                             column = 2, sticky = tk.E)
 
         tfCol += 1
@@ -1456,23 +1455,23 @@ class AppAlmanac(ttk.Frame, celnav.SunMoonRiseSet, classprint.AttrDisplay):
         ttk.Label(self.eotFrame, text = "GAT - UT at local noon:", class_ = 'TableCellNoBorder').grid(row = frameRow,
                 column = 0, sticky = tk.W)
         self.cVarDictSun['eot'] = tk.StringVar()
-        ttk.Label(self.eotFrame, textvariable = self.cVarDictSun['eot'], 
+        ttk.Label(self.eotFrame, textvariable = self.cVarDictSun['eot'],
                 class_ = 'TableCellNoBorder').grid(row = frameRow, column = 1, sticky = tk.E)
         frameRow += 1
-        
+
         tfRow += 1
-        
+
         # frame for Moon stuff:
         frameLabel = ttk.Label(tf, class_ = 'LabelFrameLabel', text = 'Moon Phase')
         self.moonFrame = ttk.LabelFrame(tf, labelwidget = frameLabel, padding = 10)
         self.moonFrame.grid(row = tfRow, column = tfCol, padx = 10, pady = 10, sticky = tk.NW+tk.E+tk.S)
         frameRow = 0
         for key in ['prev_new', 'prev_full', 'next_new', 'next_full', 'age']:
-            ttk.Label(self.moonFrame, text = "%s:            " % self.moonLabelMap[key], 
+            ttk.Label(self.moonFrame, text = "%s:            " % self.moonLabelMap[key],
                     class_ = 'TableCellNoBorder').grid(row = frameRow,
                     column = 0, sticky = tk.W)
             self.cVarDictMoon[key] = tk.StringVar()
-            ttk.Label(self.moonFrame, textvariable = self.cVarDictMoon[key], class_ = 'TableCellNoBorder').grid(row = frameRow, 
+            ttk.Label(self.moonFrame, textvariable = self.cVarDictMoon[key], class_ = 'TableCellNoBorder').grid(row = frameRow,
                     column = 1, sticky = tk.E )
             frameRow += 1
 
@@ -1499,7 +1498,7 @@ class AppAlmanac(ttk.Frame, celnav.SunMoonRiseSet, classprint.AttrDisplay):
             if key == 'sd':
                 self.cVarDictSun[key].set("%4.1f'"% self.sunData[key].degMin[1])
             elif self.sunData[key] != None:
-                self.cVarDictSun[key].set("%04d/%02d/%02d - %02d:%02d" % (self.sunData[key][0], 
+                self.cVarDictSun[key].set("%04d/%02d/%02d - %02d:%02d" % (self.sunData[key][0],
                         self.sunData[key][1], self.sunData[key][2],
                         self.sunData[key][3], self.sunData[key][4]))
             else:
@@ -1512,7 +1511,7 @@ class AppAlmanac(ttk.Frame, celnav.SunMoonRiseSet, classprint.AttrDisplay):
                 self.cVarDictMoon[key].set("%4.1f'"% self.moonData[key].degMin[1])
             elif key != None:
                 if self.moonData[key] != None:
-                    self.cVarDictMoon[key].set("%04d/%02d/%02d - %02d:%02d" % (self.moonData[key][0], 
+                    self.cVarDictMoon[key].set("%04d/%02d/%02d - %02d:%02d" % (self.moonData[key][0],
                             self.moonData[key][1], self.moonData[key][2],
                             self.moonData[key][3], self.moonData[key][4]))
                 else:
@@ -1529,7 +1528,7 @@ class AppAlmanac(ttk.Frame, celnav.SunMoonRiseSet, classprint.AttrDisplay):
 
         # Moon phases:
         for key in ['prev_new', 'prev_full', 'next_new', 'next_full']:
-            self.cVarDictMoon[key].set("%04d/%02d/%02d" % 
+            self.cVarDictMoon[key].set("%04d/%02d/%02d" %
                     (self.moonData[key][0], self.moonData[key][1], self.moonData[key][2]))
 
         self.cVarDictMoon['age'].set("%2d days" % self.moonData['age'])
@@ -1564,10 +1563,10 @@ class AppAlmanac(ttk.Frame, celnav.SunMoonRiseSet, classprint.AttrDisplay):
 
         colSep = CSV_COLSEP
         colList = [ 'Star', 'SHA', 'Dec', 'Alt', 'Az', 'Mag', 'SHA', 'Dec', 'Alt', 'Az' ]
-        
-        self.updateDataCallback()                               # make sure current ut/lat/lon are also 
+
+        self.updateDataCallback()                               # make sure current ut/lat/lon are also
                                                                 # reflected in table display
-        sf = celnav.StarFinder(celnav.starList, lat = degrees(self.observer.lat), 
+        sf = celnav.StarFinder(celnav.starList, lat = degrees(self.observer.lat),
                 lon = degrees(self.observer.lon), ut = self.ut)
 
         fileName = "star_data_%04d%02d%02d-%02d%02d%02dUT.txt" % (sf.ut)
@@ -1576,7 +1575,7 @@ class AppAlmanac(ttk.Frame, celnav.SunMoonRiseSet, classprint.AttrDisplay):
 
         # write ut and lat/lon
         timeStr = '%04d/%02d/%02d-%02d:%02d:%02dUT' % (sf.ut)
-        outFile.write('%s - %s : %s\n' % (timeStr, celnav.Angle(degrees(self.observer.lat)).latStr(), 
+        outFile.write('%s - %s : %s\n' % (timeStr, celnav.Angle(degrees(self.observer.lat)).latStr(),
             celnav.Angle(degrees(self.observer.lon)).lonStr()))
         outFile.write('\n')
 
@@ -1588,15 +1587,15 @@ class AppAlmanac(ttk.Frame, celnav.SunMoonRiseSet, classprint.AttrDisplay):
         for key in sf.starData:
             sd = sf.starData[key]
             line = key
-            line += '%s%.6f' % (colSep, sd['sha'].decD) 
-            line += '%s%.6f' % (colSep, sd['dec'].decD) 
-            line += '%s%.6f' % (colSep, sd['alt'].decD) 
-            line += '%s%.6f' % (colSep, sd['az'].decD) 
+            line += '%s%.6f' % (colSep, sd['sha'].decD)
+            line += '%s%.6f' % (colSep, sd['dec'].decD)
+            line += '%s%.6f' % (colSep, sd['alt'].decD)
+            line += '%s%.6f' % (colSep, sd['az'].decD)
             line += '%s%.1f' % (colSep, sd['mag'])
-            line += '%s%s' % (colSep, sd['sha'].absStr()) 
-            line += '%s%s' % (colSep, sd['dec'].latStr()) 
-            line += '%s%s' % (colSep, sd['alt'].signStr()) 
-            line += '%s%s' % (colSep, sd['az'].intStr()) 
+            line += '%s%s' % (colSep, sd['sha'].absStr())
+            line += '%s%s' % (colSep, sd['dec'].latStr())
+            line += '%s%s' % (colSep, sd['alt'].signStr())
+            line += '%s%s' % (colSep, sd['az'].intStr())
             outFile.write('%s\n' % line)
 
         outFile.close()
@@ -1611,8 +1610,8 @@ class AppAlmanac(ttk.Frame, celnav.SunMoonRiseSet, classprint.AttrDisplay):
         global TMP_DIR, CSV_COLSEP
 
         colSep = CSV_COLSEP
-        
-        self.updateDataCallback()                               # make sure current ut/lat/lon are also 
+
+        self.updateDataCallback()                               # make sure current ut/lat/lon are also
                                                                 # reflected in table display
         alPg = celnav.AlmanacPage(self.ut[:3])
 
@@ -1658,7 +1657,7 @@ class AppAlmanac(ttk.Frame, celnav.SunMoonRiseSet, classprint.AttrDisplay):
                 if b == 'aries':
                     line1 += "%s%s" % (colSep, alPg.__dict__['aries'][h].absStr())
                 else:
-                    line1 += "%s%s%s%s" % (colSep, alPg.__dict__[b]['gha'][h].absStr(), 
+                    line1 += "%s%s%s%s" % (colSep, alPg.__dict__[b]['gha'][h].absStr(),
                             colSep, alPg.__dict__[b]['dec'][h].latStr())
                     if b == 'moon':
                         line1 += "%s%s" % (colSep, alPg.__dict__['moon']['hp'][h].absStr())
@@ -1686,10 +1685,10 @@ class AppPlanetFinder(ttk.Frame, celnav.PlanetFinder, classprint.AttrDisplay):
     hrGrLblNW = (100, 70)   # NW corner for hr grid label
     hrGrXStep = 25          # horizontal step between grid lines
     xL = 24 * hrGrXStep     # total width of grid
-    
+
     localMidnLblS = (hrGrNW[0] + xL/2, 40)
                             # anchor point for "Local midnight..." heading
-    
+
     amplLblS = (hrGrNW[0] + xL + 80, hrGrLblNW[1])
                             # anchor point for "Amplitude" column heading
     maxAltLblS = (amplLblS[0] + 80,  hrGrLblNW[1])
@@ -1699,10 +1698,10 @@ class AppPlanetFinder(ttk.Frame, celnav.PlanetFinder, classprint.AttrDisplay):
 
         ttk.Frame.__init__(self, master)
         self.grid(sticky = tk.N+tk.S+tk.W+tk.E)
-        
+
         ut = dt.datetime.utcnow().timetuple()[:6]
-        celnav.PlanetFinder.__init__(self, lat = INITIAL_LAT, lon = INITIAL_LON, ut = ut)    
-        
+        celnav.PlanetFinder.__init__(self, lat = INITIAL_LAT, lon = INITIAL_LON, ut = ut)
+
         # local time offset at lon incl. fractional hrs
         self.localHrOffset = degrees(self.observer.lon) / 15.0
 
@@ -1737,40 +1736,40 @@ class AppPlanetFinder(ttk.Frame, celnav.PlanetFinder, classprint.AttrDisplay):
         self.__attr2entry()
 
         # button for data update
-        self.updateButton = ttk.Button(ef, text="Update Display", 
+        self.updateButton = ttk.Button(ef, text="Update Display",
                 command = self.__updateDataCallback, padding = 3)
         self.updateButton.grid(row = frameRow, column = frameCol, pady=3, sticky = tk.E)
         frameCol += 1
-        
+
         currentRow += 1
-        
+
         # now: the canvas...
         self.cv = tk.Canvas(self, bg = '#ffffff', width = self.cw, height = self.ch)
         self.cv.grid(sticky = tk.N+tk.S+tk.W+tk.E, padx= 10, pady = 5)
-        
+
         # place planet names as row headings
         for i, p in enumerate(self.planetList):
-            self.cv.create_text(self.rLblNW[0], self.rLblNW[1] + i*self.rLblYStep, 
+            self.cv.create_text(self.rLblNW[0], self.rLblNW[1] + i*self.rLblYStep,
                     text = p, font = 'lucidatypewriter 10 bold', anchor = tk.W)
 
         # Amplitude and max. alt column headings to the right of the chart
-        self.cv.create_text(*self.amplLblS, text = 'Amplitude', 
+        self.cv.create_text(*self.amplLblS, text = 'Amplitude',
                 anchor = tk.S)
-        self.cv.create_text(*self.maxAltLblS, text = 'Max. Alt.', 
+        self.cv.create_text(*self.maxAltLblS, text = 'Max. Alt.',
                 anchor = tk.S)
 
         self.__drawData()
 
- 
+
     def __drawData(self):
         """Draws/updates canvas elements that change with input data.
         """
         # delete local midnight heading:
         self.cv.delete('localMidnHdg')
-        
+
         # local midnight:
         if self.observer.date > 0:
-            self.cv.create_text(*self.localMidnLblS, text = 
+            self.cv.create_text(*self.localMidnLblS, text =
                     'Local midnight: %s UT' % self.observer.date, anchor =
                     tk.S, tags = 'localMidnHdg')
 
@@ -1784,17 +1783,17 @@ class AppPlanetFinder(ttk.Frame, celnav.PlanetFinder, classprint.AttrDisplay):
 
                 try:
                     ampl = celnav.Angle(90 - self.planets[p]['rise_az'].decD)
-                    self.cv.create_text(self.amplLblS[0], self.rLblNW[1]+i*self.rLblYStep, 
+                    self.cv.create_text(self.amplLblS[0], self.rLblNW[1]+i*self.rLblYStep,
                             text = "%3s%s" % (ampl.latStrDeg(), u'\xb0'), tags = 'amplVal')
                 except:  # None value in dictionary
-                    self.cv.create_text(self.amplLblS[0], self.rLblNW[1]+i*self.rLblYStep, 
+                    self.cv.create_text(self.amplLblS[0], self.rLblNW[1]+i*self.rLblYStep,
                             text = "---", tags = 'amplVal')
                 try:
-                    self.cv.create_text(self.maxAltLblS[0], self.rLblNW[1]+i*self.rLblYStep, 
-                            text = "%2s%s" % (self.planets[p]['mer_pass_alt'].intStr(), 
+                    self.cv.create_text(self.maxAltLblS[0], self.rLblNW[1]+i*self.rLblYStep,
+                            text = "%2s%s" % (self.planets[p]['mer_pass_alt'].intStr(),
                                 u'\xb0'), tags = 'maxAltVal')
                 except:  # None value in dictionary
-                    self.cv.create_text(self.maxAltLblS[0], self.rLblNW[1]+i*self.rLblYStep, 
+                    self.cv.create_text(self.maxAltLblS[0], self.rLblNW[1]+i*self.rLblYStep,
                             text = "--", tags = 'maxAltVal')
 
         # delete shaded twilight and night rectangles:
@@ -1808,7 +1807,7 @@ class AppPlanetFinder(ttk.Frame, celnav.PlanetFinder, classprint.AttrDisplay):
 
         # length of grid lines
         lineLen = (len(self.planets) - 1) * self.rLblYStep + self.rLblNW[1] - self.hrGrNW[1] + 20
-        
+
         # start/end values might be none for events above the arctic circle:
         try:
             self.cv.create_rectangle(xPMtwlStart+self.hrGrNW[0],
@@ -1832,14 +1831,14 @@ class AppPlanetFinder(ttk.Frame, celnav.PlanetFinder, classprint.AttrDisplay):
         # delete grid lines and hr labels:
         self.cv.delete('gridLine')
         self.cv.delete('hrLabel')
-        
+
         # (re-)draw grid lines and hr labels:
         for i in range(25):
             hr = (i+12-self.tzHrOffset)%24
             x = self.hrGrLblNW[0] + i*self.hrGrXStep
-            self.cv.create_text(x, self.hrGrLblNW[1], text = '%02d' % hr, 
+            self.cv.create_text(x, self.hrGrLblNW[1], text = '%02d' % hr,
                     anchor = tk.S, tags = 'hrLabel')
-            self.cv.create_line(x, self.hrGrNW[1], x, self.hrGrNW[1]+lineLen, 
+            self.cv.create_line(x, self.hrGrNW[1], x, self.hrGrNW[1]+lineLen,
                     dash = (3, 3), fill = '#666666', tags = 'gridLine')
 
         # and now the Gantt bars: delete
@@ -1861,73 +1860,73 @@ class AppPlanetFinder(ttk.Frame, celnav.PlanetFinder, classprint.AttrDisplay):
                         i*self.rLblYStep, xEnd, self.rLblNW[1] +
                         i*self.rLblYStep, fill = '#f6ca0e', width = 8, tags =
                         'ganttBar')
-            
+
             elif xStart != None and xEnd == None:   # rises but doesn't set
                 self.cv.create_line(xStart, self.rLblNW[1] +
                         i*self.rLblYStep, selfhrGrNW[0]+self.xL, self.rLblNW[1] +
                         i*self.rLblYStep, fill = '#f6ca0e', width = 8, tags =
                         'ganttBar')
-            
+
             elif xStart == None and xEnd == None:
                 pass
-            
+
             elif xStart < 0 and xEnd >= 0:
                 xStart = 0
-                self.cv.create_line(xStart, self.rLblNW[1] + i*self.rLblYStep, xEnd, 
-                        self.rLblNW[1] + i*self.rLblYStep, fill = '#f6ca0e', 
+                self.cv.create_line(xStart, self.rLblNW[1] + i*self.rLblYStep, xEnd,
+                        self.rLblNW[1] + i*self.rLblYStep, fill = '#f6ca0e',
                         width = 8, tags = 'ganttBar')
 
             elif xEnd > self.xL+self.hrGrNW[0] and xStart <= self.xL+self.hrGrNW[0]:
                 xEnd = self.xL
-                self.cv.create_line(xStart, self.rLblNW[1] + i*self.rLblYStep, xEnd, 
-                        self.rLblNW[1] + i*self.rLblYStep, fill = '#f6ca0e', 
+                self.cv.create_line(xStart, self.rLblNW[1] + i*self.rLblYStep, xEnd,
+                        self.rLblNW[1] + i*self.rLblYStep, fill = '#f6ca0e',
                         width = 8, tags = 'ganttBar')
 
             elif xStart <= xEnd:
-                self.cv.create_line(xStart, self.rLblNW[1] + i*self.rLblYStep, xEnd, 
-                        self.rLblNW[1] + i*self.rLblYStep, fill = '#f6ca0e', 
+                self.cv.create_line(xStart, self.rLblNW[1] + i*self.rLblYStep, xEnd,
+                        self.rLblNW[1] + i*self.rLblYStep, fill = '#f6ca0e',
                         width = 8, tags = 'ganttBar')
 
             else:           # rise and set swapped - need two bars
-                self.cv.create_line(self.hrGrNW[0], self.rLblNW[1] + i*self.rLblYStep, 
-                        xEnd, self.rLblNW[1] + i*self.rLblYStep, fill = '#f6ca0e', 
+                self.cv.create_line(self.hrGrNW[0], self.rLblNW[1] + i*self.rLblYStep,
+                        xEnd, self.rLblNW[1] + i*self.rLblYStep, fill = '#f6ca0e',
                         width = 8, tags = 'ganttBar')
-                self.cv.create_line(xStart, self.rLblNW[1] + i*self.rLblYStep, 
+                self.cv.create_line(xStart, self.rLblNW[1] + i*self.rLblYStep,
                         self.hrGrNW[0]+self.xL, self.rLblNW[1] + i*self.rLblYStep,
                         fill = '#f6ca0e', width = 8, tags = 'ganttBar')
-                    
+
 
     def dt2dx(self, t, xL):
         """Returns the x-coordinate on the canvas that corresponds to t which
         is a tuple (nY, M, D, h, m, s). xL is the total length of the 24 hr
         Gantt chart.
-        Calculates: 
+        Calculates:
             t - (local midnight at lon)
-            + 0.5 days                      
+            + 0.5 days
             + (tzHrOffset - localHrOffset)
         in days to get value between 0 and 1 (if t within that 24 hr range)
         that represents the fraction of that 24hr period counted from the
-        beginning of the hr grid. 
+        beginning of the hr grid.
         Returns None if datetime raises a TypeError on being passed t or
         self.observer.date (t would be None for example for
         sunrise/-set/twilight events above the arctic cricle).
         """
         od = self.observer.date.tuple()
         od = od[:5] + (int(od[5]),)
-        
+
         try:
             deltaT = dt.datetime(*t) - dt.datetime(*od)
         except TypeError:
             return None
 
         # convert timedelta object to days and offset to -0.5 = 0
-        deltaD = (deltaT.days + deltaT.seconds / (3600.0 * 24) 
+        deltaD = (deltaT.days + deltaT.seconds / (3600.0 * 24)
                 + deltaT.microseconds / (3600e6 * 24) + 0.5)
 
         # adjust for fractional hrs difference between time zone (= grid) and
         # true local time at lon
         deltaD += (self.tzHrOffset - self.localHrOffset) / 24.0
-        
+
         return int(round(xL * deltaD))
 
 
@@ -1952,10 +1951,10 @@ class AppPlanetFinder(ttk.Frame, celnav.PlanetFinder, classprint.AttrDisplay):
 
 
     def __updateDataCallback(self):
-        
+
         self.__entry2attr()
         self.calcData()
-        
+
         self.__attr2entry()
 
         # local time offset at lon incl. fractional hrs
@@ -1963,7 +1962,7 @@ class AppPlanetFinder(ttk.Frame, celnav.PlanetFinder, classprint.AttrDisplay):
 
         # time zone offset in whole hrs (west lon -> tzOffset < 0)
         self.tzHrOffset = int(round(self.localHrOffset))
-        
+
         self.__drawData()
 
 
@@ -1973,13 +1972,13 @@ class AppAlmanacPageTV(ttk.Frame, celnav.AlmanacPage, classprint.AttrDisplay):
     planets as well as GHA Aries.
     NOTE: scrollbars don't wotk correctly - don't use this class
     """
-    
+
     # identifier strings for columns in Treeview widget (24 hrs):
     colID = []     # first column contains key (e.g. 'GHA')
     for h in range(24):
         colID.append("%02d" % h)
 
-    keyLabelMap = {         
+    keyLabelMap = {
             'gha' : 'GHA',
             'dec' : 'Dec',
             'hp' : 'HP'
@@ -1988,19 +1987,19 @@ class AppAlmanacPageTV(ttk.Frame, celnav.AlmanacPage, classprint.AttrDisplay):
     # body sequence used to iterate over the differemnt planed data
     # dictionaries via self.__dict__
     bSeq = ('aries', 'sun', 'moon', 'venus', 'mars', 'jupiter', 'saturn')
-    
+
     bLabelMap = {
-            'aries' : 'Aries', 
-            'sun' : 'Sun', 
-            'moon' : 'Moon', 
-            'venus' : 'Venus', 
-            'mars' : 'Mars', 
-            'jupiter' : 'Jupiter', 
+            'aries' : 'Aries',
+            'sun' : 'Sun',
+            'moon' : 'Moon',
+            'venus' : 'Venus',
+            'mars' : 'Mars',
+            'jupiter' : 'Jupiter',
             'saturn' : 'Saturn'
             }
 
     def __init__(self, master = None):
-        """Calls parent constructors and generates and grids widgets.       
+        """Calls parent constructors and generates and grids widgets.
         """
         ttk.Frame.__init__(self, master, width = 800, height = 600)
         self.grid_propagate(0)
@@ -2022,7 +2021,7 @@ class AppAlmanacPageTV(ttk.Frame, celnav.AlmanacPage, classprint.AttrDisplay):
         currentCol = 1
 
         # create and grid treeview widget
-        self.tv = ttk.Treeview(self, column = self.colID, displaycolumns = '#all', 
+        self.tv = ttk.Treeview(self, column = self.colID, displaycolumns = '#all',
                 height = len(self.bSeq)*3, selectmode = 'extended')
         self.tv.grid(row = currentRow, column = currentCol)
         self.tv.grid_propagate(0)
@@ -2036,10 +2035,10 @@ class AppAlmanacPageTV(ttk.Frame, celnav.AlmanacPage, classprint.AttrDisplay):
 
         # and now... insert rows..
         for b in self.bSeq:
-            
+
             # insert parent:
             self.tv.insert('', 'end', iid = b, text = self.bLabelMap[b], tag = 'body')
-            
+
             # and its children:
             ghaList = []        # value string with formatted entries to be added
             decList = []        # value string with formatted entries to be added
@@ -2063,15 +2062,15 @@ class AppAlmanacPageTV(ttk.Frame, celnav.AlmanacPage, classprint.AttrDisplay):
                     decList.append("%s %2d %04.1f" % (signStr, dDict['dec'][h].degMin[0], dDict['dec'][h].degMin[1]))
                     if b == 'moon':     # also HP
                         hpList.append("%04.1f" % (dDict['hp'][h].decD * 60))
-                    
+
                 self.tv.insert(b, 'end', iid = b+'gha', text = self.keyLabelMap['gha'], values = ghaList, tag = 'data')
                 self.tv.insert(b, 'end', iid = b+'dec', text = self.keyLabelMap['dec'], values = decList, tag = 'data')
-                
+
                 if b == 'moon':     # also HP
                     self.tv.insert(b, 'end', iid = b+'hp', text = self.keyLabelMap['hp'], values = hpList, tag = 'data')
 
         self.tv.configure(displaycolumns = [ i for i in range(6) ])
-        
+
         # add scrollbars
         self.scrollX = tk.Scrollbar(self, orient = tk.HORIZONTAL, command = self.tv.xview)
         self.scrollX.grid(row = currentRow+1, column = currentCol, sticky = tk.E+tk.W)
