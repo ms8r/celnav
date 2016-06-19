@@ -16,6 +16,7 @@ from distutils.core import setup
 import os, sys, shutil
 
 APP_DIR = os.path.expandvars("$HOME/.celnav")   # used for ini, cfg files
+print '*** APP_DIR: %s ***' % APP_DIR
 
 DATA_FILE_SRC_DIR = 'data_files'    # path relative to setup.py
 
@@ -33,6 +34,16 @@ DESKTOP_FILE = 'celnav.desktop'
 INI_FILE = 'celnav.ini'
 TK_CFG_FILE = 'celnav.cfg'
 LOG_FILE = 'celnav.log'
+
+# create APP_DIR if it doesn't exist:
+if 'install' in sys.argv and not os.path.exists(APP_DIR):
+    print "*** creating %s ... ***" % APP_DIR
+    os.mkdirs(APP_DIR)
+    if os.path.exists(APP_DIR):
+        print "*** %s exists... ***" % APP_DIR
+    else:
+        print "*** %s still does not exist... ***" % APP_DIR
+
 
 # dictionary with data files, mapping destination directory to source path:
 dfMap = {
@@ -127,10 +138,6 @@ if 'install' in sys.argv:
                 os.path.join(APP_DIR, TK_CFG_FILE),
                 os.path.join(APP_DIR, LOG_FILE) ]:
         move2old(sf)
-
-# create APP_DIR if it doesn't exist:
-if 'install' in sys.argv and not os.path.exists(APP_DIR):
-    os.mkdirs(APP_DIR)
 
 # and now the meat:
 setup(  name = 'CelNav',
