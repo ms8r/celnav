@@ -4,13 +4,9 @@ INI_FILE sections are assumed to equal module names but this is not strictly
 neccessary as long as the modules using cncfg look for the right stuff.
 """
 
-__author__ = "markus@namaniatsea.net"
-__version__ = "0.2.0"
-__revision__ = "$Id: cncfg.py,v 1.2 2013/07/16 07:59:06 markus Exp markus $"
-
 import ConfigParser, os
 import tkMessageBox as tMB
-INI_DIR = os.path.expandvars("$HOME/.celnav") 
+INI_DIR = os.path.expandvars("$HOME/.celnav")
 INI_FILE = 'celnav.ini'
 
 cncfg = ConfigParser.ConfigParser()
@@ -24,7 +20,7 @@ def build_cfg():
         iniPath = os.path.join(INI_DIR, INI_FILE)
         cncfg.readfp(open(iniPath))
     except:
-        warningStr = "Could not read configuration file %s" % INI_PATH
+        warningStr = "Could not read configuration file %s" % iniPath
         tMB.showwarning(title = "CelNav Warning", message = warningStr, icon = tMB.WARNING)
 
 

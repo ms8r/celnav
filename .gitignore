@@ -1,0 +1,8 @@
+venv
+*.out
+*.png
+*.gz
+*.pyc
+*~
+non-git
+.idea

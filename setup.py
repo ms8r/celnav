@@ -128,9 +128,13 @@ if 'install' in sys.argv:
                 os.path.join(APP_DIR, LOG_FILE) ]:
         move2old(sf)
 
+# create APP_DIR if it doesn't exist:
+if 'install' in sys.argv and not os.path.exists(APP_DIR):
+    os.mkdirs(APP_DIR)
+
 # and now the meat:
 setup(  name = 'CelNav',
-        version = '0.2.2',
+        version = '0.2.3',
         description = 'Celestial Navigation for Cruisers',
         author = 'Markus Schweitzer',
         author_email = 'markus@namaniatsea.org',
