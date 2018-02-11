@@ -18,6 +18,12 @@ import os, sys, shutil
 
 # need original user if setup run with sudo:
 user = os.getenv('SUDO_USER')
+
+# if run by non-root user, user is None at this point, so assume
+# run as regular user
+if user is None:
+    user = os.getenv('USER')
+
 APP_DIR = os.path.join('/home', user, '.celnav')   # used for ini, cfg files
 
 # create APP_DIR if it doesn't exist:
