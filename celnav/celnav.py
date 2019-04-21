@@ -25,6 +25,8 @@ import ConfigParser
 # import PyEphem (see http://rhodesmill.org/pyephem/index.html)
 import ephem
 
+from skyfield.units import Angle as sfAngle
+
 # celestial body list
 bodyList = ["Sun LL", "Sun UL", "Moon LL", "Moon UL", "Venus", "Mars", "Jupiter", "Saturn", "star"]
 
@@ -72,7 +74,7 @@ START_UP_LOG_MSG = ('### celnav.STAR_CALC == \'%s\' ###  starcat.DB_SOURCE == \'
 import classprint
 
 
-class Angle(classprint.AttrDisplay):
+class Angle():
     """Stores Angle as
         - decD: degrees as decimal fraction
         - rad: radians
