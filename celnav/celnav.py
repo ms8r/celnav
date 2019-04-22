@@ -198,17 +198,18 @@ class Sight(classprint.AttrDisplay):
             (Y, M, D, h, m, s)
         Ic: Intercept in nm
         Az: Azimuth in decD
-        Ha: needs to be calculated outside this class
+        Ha: apparent altitude, corrected for index error and dip (needs to be
+            calculated outside this class)
         """
-        self.Hs = Angle(Hs)         # sextant altitude
-        self.Ha = Angle()           # apparent altitude
-        if UT == None:              # set to current UT, ignoring weekday, yearday and DST
+        self.Hs = Angle(Hs)
+        self.Ha = Angle()
+        if UT == None:
             UT = dt.datetime.utcnow().timetuple()[:6]
         self.UT = UT
-
-        self.Ic = Ic                # Intercept in nm
-        self.srfIc = Ic             # Ic corrected for short run fix (based on vessel SOG, COG)
-        self.Az = Angle(Az)         # Azimuth
+        self.Ic = Ic
+        # Ic corrected for short run fix (based on vessel SOG, COG)
+        self.srfIc = Ic
+        self.Az = Angle(Az)
 
 
 class MyObserver(ephem.Observer, classprint.AttrDisplay):
