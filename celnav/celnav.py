@@ -14,7 +14,10 @@ __author__ = "markus@namaniatsea.org"
 __version__ = "0.2.2"
 
 # import standard libraries
-from math import *
+from math import copysign
+from math import sin, cos, tan, atan
+from math import radians, degrees
+from math import pi
 # import time
 import datetime as dt
 import os
@@ -74,15 +77,26 @@ START_UP_LOG_MSG = ('### celnav.STAR_CALC == \'%s\' ###  starcat.DB_SOURCE == \'
 import classprint
 
 
-class Angle():
-    """Stores Angle as
-        - decD: degrees as decimal fraction
-        - rad: radians
-        - degMin: as a tuple (deg, min, sign) containing whole
-          degrees, minutes (incl. fraction) and a sign (+1 / -1)
-    Setting one attribute will automatically update the others.
-    Values >= 360 or <= -360 will automatically be reduced by
-    multiples of 360
+class Angle(classprint.AttrDisplay):
+    """
+    Lat/Lon aware angle object.
+
+    Values >= 360 or <= -360 will automatically be reduced by multiples of 360.
+    Provides the following attributes and methods:
+        decD:        degrees as decimal fraction, synonym for `degrees`
+        rad:         angle in radians
+        degMin:      as a tuple (deg, min, sign) containing whole degrees,
+                     minutes (incl. fraction) and a sign (+1 / -1)
+        latStr():    latitude as string, e.g. 'S 22 30.0' for Angle(22.5)
+        latStrDeg(): latitude as string, rounded to nearest degree ('S23')
+        lonStr(),
+        lonStrDeg(): same for longitude with E/W signing
+        absStr():    absolute value as string ('22 30.0')
+        signStr():   e.g. '-22 30.0'
+        intStr():    e.g. '-23' (rounded)
+    These primarily serve as output formats for different UI fields and almanac
+    pages. Note that the lat/lon methods to not check if angles are greater
+    than 90 and 180 degrees respectively.
     """
 
     signDict = {}
@@ -90,17 +104,17 @@ class Angle():
     signDict['lon'] = { 1 : 'E', -1:'W' }
     signDict['generic'] = { 1 : '+', -1:'-' }
 
-    def __init__(self, decD = 0):
-        """Initializes decimal degree attribute of Angle;
+    def __init__(self, decD=0):
+        """
+        Initializes decimal degree attribute of Angle;
         __setattr__ will take care of the other attributes
         """
         self.decD = decD
 
-
     def __setattr__(self, name, value):
-        """Keep rad and deg values in synch, remove 360 multiples
         """
-
+        Keep rad and deg values in synch, remove 360 multiples
+        """
         self.__dict__[name] = value
 
         if name == "degMin":
@@ -133,7 +147,7 @@ class Angle():
             d = abs(int(self.decD))
             m = (abs(self.decD) - d) * 60
             if self.decD != 0:
-                sign =  int(abs(self.decD)/self.decD)
+                sign = copysign(1, self.decD)
             else:
                 sign = 1
             self.__dict__["degMin"] = (d, m, sign)
@@ -172,10 +186,12 @@ class Angle():
 
 
 class Sight(classprint.AttrDisplay):
-    """Wrapper for sextant height, apparent height, UT, Ic and Az
     """
-    def __init__(self, Hs = 0, UT = None, Ic = 0, Az = 0):
-        """Initializes Sight object
+    Wrapper for sextant height, apparent height, UT, Ic and Az
+    """
+    def __init__(self, Hs=0, UT=None, Ic=0, Az=0):
+        """
+        Initializes Sight object
         Hs: uncorrected sextant altitude in degrees
             with decimal fraction
         UT: UT date and time of Sight as
@@ -259,9 +275,10 @@ class LOP(classprint.AttrDisplay):
         aaReDict['alt'] = re.compile(r"^Topocentric:  Altitude (?P<alt>[^ ]*) deg, Azimuth [^ ]* deg$")
         aaReDict['az'] = re.compile(r"^Topocentric:  Altitude [^ ]* deg, Azimuth (?P<az>[^ ]*) deg$")
 
-    def __init__(self, fix = None, body = "Sun LL", starName = None, indexError = 0, heightOfEye = 0,
-            lat = 0, lon = 0, elevation = 0, temp = 20, pressure = 1010):
-        """Initialization values for
+    def __init__(self, fix=None, body='Sun LL', starName=None, indexError=0, heightOfEye=0,
+            lat=0, lon=0, elevation=0, temp=20, pressure = 1010):
+        """
+        Initialization values for
         lat:                latitude in degrees as decimal fraction (S = -)
         lon:                longitude in degrees as decimal fraction (W = -)
         elevation:          above sea level in meters
@@ -270,36 +287,33 @@ class LOP(classprint.AttrDisplay):
         temp:               in degrees C
         pressure:           in mb
         """
+        # fix to which LOP belongs; can be used to access SOG/COG/UT from Fix
+        # for MOO correction
+        self.fix = fix
 
-        self.fix = fix          # fix to which LOP belongs;
-                                # can be used to access SOG/COG/UT from Fix for MOO correction
-
-        self.body = body        # Observed body; possible values:
-                                #   - Sun UL, Sun LL, Moon UL, Moon LL
-                                #   - Venus, Mars, Jupiter, Saturn
-                                #   - star
-                                # If "star", starName must be a star name that
-                                # is known to PyEphem
-
-
+        # Observed body; possible values:
+        #   - Sun UL, Sun LL, Moon UL, Moon LL
+        #   - Venus, Mars, Jupiter, Saturn
+        #   - star
+        # If "star", starName must be a star name that is known to PyEphem
+        self.body = body
         self.starName = starName
-                                # star name (see under "body" above)
 
         if starName != None:
             self.starNum = starcat.navStarNum[starName]
         else:
             self.starNum = None
 
-        self.sightList = []     # list of Sight objects (to be appended with each shot
+        # list of Sight objects (to be appended with each shot)
+        self.sightList = []
+        # index for Sight in self.sightList to be used for fix calculation
         self.lopSightIndex = -1
-                                # index for Sight in self.sightList to be used for fix calculation
 
         self.observer =  MyObserver(lat = lat, lon = lon, elevation = elevation, indexError = indexError,
                 heightOfEye = heightOfEye, temp = temp, pressure = pressure)
                                 # needs to be updated with time of shot before call to
                                 # PyEphem for computation of topocentric apparent
                                 # altitude
-
 
 
     def calcHa(self):

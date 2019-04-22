@@ -35,4 +35,13 @@ def test_Angle():
     c = cn.Angle(180.)
     assert c.lonStr() == 'E 180 00.0'
 
+    # updates:
+    a.decD += 45
+    assert a.decD == pytest.approx(22.5)
+    assert a.rad == pytest.approx(0.39269908169872414)
+    assert a.degMin == (22, pytest.approx(30.0), 1)
 
+    b.rad -= 0.3
+    assert b.rad == pytest.approx(3.0580134808370903)
+    assert b.decD == pytest.approx(175.21126614607533)
+    assert b.degMin == (175, pytest.approx(12.675968764519894), 1)
