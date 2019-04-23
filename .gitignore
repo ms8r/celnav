@@ -4,5 +4,6 @@ venv
 *.gz
 *.pyc
 *~
+*.pdf
 non-git
 .idea

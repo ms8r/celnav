@@ -1,4 +1,5 @@
-"""starcat: support module for celnav
+"""
+starcat: support module for celnav
 Calls ephem to construct dictionary that has star names as keys and
 maps the corresponding ephem star objects against these. Exports a fumction
 'navStar()' that can be called with a star name as argument and will return the
@@ -6,7 +7,7 @@ corresponding ephem star object. Also exports:
 
     navStarNum  -   dictionary that contains a {star name : number} mapping
                     where 'number' is the star's number in the Nautical Almanac
-                    (based on sequence of stars sorted by descending SHA). 
+                    (based on sequence of stars sorted by descending SHA).
 
     navStarName -   dictionary that maps star names to their respective numbers
                     in the NA
@@ -40,18 +41,18 @@ NOTES ON UNDERLYING STAR DATA:
         Atria, Avior, Diphda, Eltanin, Gacrux, Gienah, Hadar, Kaus Australis,
         Menkent, Miaplacidus, Mirfak, Rigil Kentaurus, Sabik, Suhail,
         Zubenelgenubi
-    
+
     Data for these stars was taken from the hip_main.dat catalogue (downloaded
     in June 2013). Based on this data outputs from PyEphem and Steve
     Moshier's AA Ephemeris Program have been compared for the following
     parameters:
-        
+
         Latitudes:  -30, 0, 30 deg
         Longitude:  -178 deg
         UT in hourly intervals from 0 to 23 on:
-                    30JUN 2012, 
-                    30SEP 2014, 
-                    31DEC 2016, 
+                    30JUN 2012,
+                    30SEP 2014,
+                    31DEC 2016,
                     31MAR 2018
 
     Results:
@@ -60,7 +61,7 @@ NOTES ON UNDERLYING STAR DATA:
             between Ha output from ephem (based on 'hip' data) and aa is less
             than 0.25' with the exception of Rigil Kentaurus (up to 0.64') and
             Arcturus (up to 0.34'). These differences can be reduced to less
-            than 0.15' for all stars if DB_SOURCE is set to 'aa'. 
+            than 0.15' for all stars if DB_SOURCE is set to 'aa'.
 
         -   For Ha below 12deg the differences between ephem and aa outputs
             increase across virtually all stars as Ha approaches 0. For
@@ -73,7 +74,7 @@ NOTES ON UNDERLYING STAR DATA:
             reaches 87' at Ha values around -4 deg for a number of stars (no
             discernable pattern). For altitudes <= -8 deg the differences are
             in a range similar to the one for altitudes >= 12 deg for either
-            DB_SOURCE. 
+            DB_SOURCE.
 
         -   For DB_SOURCE == 'hip' Arcturus is the only star for which values
             for declination differ by more than 0.25' between aa and ephem.
@@ -99,16 +100,16 @@ NOTES ON UNDERLYING STAR DATA:
     that ephem outputs for DB_SOURCE == 'aa' more closely track AA outputs
     which are said to have been tested extensively against NA data). Of course,
     'hip' may be right and the NA may be wrong....
-    
+
     I have no idea what drives the big differences between ephem and aa outputs
     for both DB_SOURCE values at Ha around -4 deg (perhaps different refraction
-    models?). 
+    models?).
 
     I'm also curious why the J2000 epoch RA and Dec values in hip are different
     from what's shown in aa (and presumably matches the USNO refernce data).
     This difference is most notable for Rigil Kentaurus:
-    
-        hip: 
+
+        hip:
             RA:     14:39:40.90
             Dec:    -60:50:06.5
 
@@ -118,9 +119,10 @@ NOTES ON UNDERLYING STAR DATA:
 
     If anyone can educate me regarding these differences I'd appreciate your
     comments at markus@namaniatsea.net - thanks!
-""" 
+"""
 
 import ConfigParser
+import logging
 import ephem
 
 # import cncfg to get access to ConfigParser obejct:
@@ -136,6 +138,8 @@ SECTION_ID = 'starcat'
 DB_SOURCE = 'hip'
 if cncfg.cncfg.has_option(SECTION_ID, 'DB_SOURCE'):
     DB_SOURCE = cncfg.cncfg.get(SECTION_ID, 'DB_SOURCE')
+
+logging.debug('DB_SOURCE: %s', DB_SOURCE)
 
 if DB_SOURCE == 'hip':
 
@@ -272,7 +276,7 @@ navStarName = {}
 def build_navStars():
 
     global navStarObj, navStarNum, navStarName
-    
+
     for line in navStarDB:
         star = ephem.readdb(line[1])
         navStarObj[star.name] = star

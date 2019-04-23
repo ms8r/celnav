@@ -45,3 +45,10 @@ def test_Angle():
     assert b.rad == pytest.approx(3.0580134808370903)
     assert b.decD == pytest.approx(175.21126614607533)
     assert b.degMin == (175, pytest.approx(12.675968764519894), 1)
+
+
+def test_LOP():
+    """
+    Placeholder
+    """
+    pass

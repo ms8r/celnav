@@ -1,4 +1,5 @@
-"""Celestial Navigation
+"""
+Celestial Navigation
 
 Functions to compute intercepts and azimuths for celestial sights of
 sun, moon, celestial planets and stars.
@@ -15,20 +16,23 @@ __version__ = "0.2.2"
 
 # import standard libraries
 from math import copysign
+from math import sqrt
 from math import sin, cos, tan, atan
 from math import radians, degrees
 from math import pi
-# import time
 import datetime as dt
 import os
 import re
 import tempfile
 import ConfigParser
+import logging
 
 # import PyEphem (see http://rhodesmill.org/pyephem/index.html)
 import ephem
 
 from skyfield.units import Angle as sfAngle
+
+logging.basicConfig(level=logging.DEBUG)
 
 # celestial body list
 bodyList = ["Sun LL", "Sun UL", "Moon LL", "Moon UL", "Venus", "Mars", "Jupiter", "Saturn", "star"]
@@ -67,6 +71,7 @@ STAR_CALC = "ephem"
 if cncfg.cncfg.has_option(SECTION_ID, 'STAR_CALC'):
     STAR_CALC = cncfg.cncfg.get(SECTION_ID, 'STAR_CALC')
 
+logging.debug('STAR_CALC: %s', STAR_CALC)
 #-----------------------------------------------------------------------------
 
 # assemble start-up log-string (can be written to log-file by other module):
@@ -923,8 +928,8 @@ class StarFinder(classprint.AttrDisplay):
             self.starData[star] = od
 
 
-def aaStars(reDict, starCatFile, starNum, ut = None, lat = 0, lon = 0, hoe = 0,
-        temp = 20, pressure = 1010):
+def aaStars(reDict, starCatFile, starNum, ut=None, deltat=0, lat=0, lon=0,
+        hoe=0, temp=20, pressure=1010):
     """Provides an interface to Sephen Moshier's aa program for star data.
     Receives pairs of group IDs and (compiled) regex's containing these group
     IDs to be matched against aa's output. Will return a dictionary with the
@@ -955,15 +960,14 @@ def aaStars(reDict, starCatFile, starNum, ut = None, lat = 0, lon = 0, hoe = 0,
     aaWorkDir = tempfile.mkdtemp()
     os.chdir(aaWorkDir)
 
-    aaIni = open("aa.ini", 'w')
-    aaIni.write("%f\n" % lon)
-    aaIni.write("%f\n" %  lat)
-    aaIni.write("%.1f\n" % hoe)
-    aaIni.write("%d\n" % int(round(temp)))
-    aaIni.write("%d\n" % int(round(pressure)))
-    aaIni.write("2\n")
-    aaIni.write("0.0\n")
-    aaIni.close()
+    with open("aa.ini", 'w') as fp:
+        fp.write("%f\n" % lon)
+        fp.write("%f\n" %  lat)
+        fp.write("%.1f\n" % hoe)
+        fp.write("%d\n" % int(round(temp)))
+        fp.write("%d\n" % int(round(pressure)))
+        fp.write("2\n")
+        fp.write("%f\n" % deltat)
 
     aaInfile = open("aa.infile", 'w')
     # first Y/M/D/h/m/s:
@@ -1027,7 +1031,8 @@ class aaStarFinder(classprint.AttrDisplay):
     reDict['dec'] = re.compile(r'^[ ]*Apparent[^D]*Dec\.[^0-9\-]*(?P<dec>[0-9\-][^"]*")[ ]*$')
     reDict['sha'] = re.compile(r'^[ ]*Apparent:[ ]*R\.A\.[^0-9]*(?P<sha>[0-9][^s]*s).*$')
 
-    def __init__(self, starList, lat = 0, lon = 0, ut = None, pressure = 1010, temp = 20, hoe = 0):
+    def __init__(self, starList, lat=0, lon=0, ut=None, deltat=0,
+            pressure=1010, temp=20, hoe=0):
         """Assigns (default) values and creates initial starData list
             starList    -   list with star names for which data is to be computed;
                             star names must be defined in starcat.py and
@@ -1036,6 +1041,8 @@ class aaStarFinder(classprint.AttrDisplay):
             lon         -   longitude in degrees (incl. decimal fraction); W = -
             ut          -   UT as tuple (Y. M. D, h, m, s), will default to
                             datetime.utcnow if not provided
+            deltat      -   deltaT value in seconds; will be extrapolated
+                            beyond 2011 if 0
             pressure    -   atmospheric pressure in mbar
             temp        -   temperature in deg C
             hoe         -   height of eye in m
@@ -1046,6 +1053,7 @@ class aaStarFinder(classprint.AttrDisplay):
             ut = dt.datetime.utcnow().timetuple()[:6]
 
         self.UT = ut
+        self.deltaT = deltat
 
         self.lat = Angle(lat)
         self.lon = Angle(lon)
@@ -1064,11 +1072,12 @@ class aaStarFinder(classprint.AttrDisplay):
         self.lon, ...
         """
         self.starData = {}
-        for s in self.starList:
-            i = starNum(s)
-            odRaw = aaStars(aaStarFinder.reDict, AA_STAR_CAT_FILE, i, ut =
-                    self.UT, lat = self.lat.decD, lon = self.lon.decD, hoe =
-                    self.hoe, temp = self.temp, pressure = self.pressure)
+        for star in self.starList:
+            i = starNum(star)
+            odRaw = aaStars(aaStarFinder.reDict, AA_STAR_CAT_FILE, i,
+                    ut=self.UT, deltat=self.deltaT, lat=self.lat.decD,
+                    lon=self.lon.decD, hoe=self.hoe, temp=self.temp,
+                    pressure=self.pressure)
             od = {}
             for key in odRaw:
                 if key == 'dec':
@@ -1090,7 +1099,7 @@ class aaStarFinder(classprint.AttrDisplay):
                 else:
                     od[key] = Angle(float(odRaw[key]))
 
-            self.starData[s] = od
+            self.starData[star] = od
 
 
 def aaBuildStarList(starList):
