@@ -999,7 +999,7 @@ def aaStars(reDict, starCatFile, starNum, ut=None, deltat=0, lat=0, lon=0,
     aaOutfile.close()
 
     # clean-up
-    os.remove(aaIni.name)
+    os.remove('aa.ini')
     os.remove(aaInfile.name)
     os.remove(aaOutfile.name)
     os.rmdir(aaWorkDir)
@@ -1426,7 +1426,7 @@ def localMidnightUT(lat, lon, ut):
 if __name__ == '__main__':
     #    import doctest
     #    doctest.testmod( )
-
+    """
     pf = PlanetFinder(lat = -18, lon = -179, ut = (2013, 7, 25, 3, 30, 0))
     print 'Twilight:'
     for key in pf.twilight:
@@ -1450,7 +1450,7 @@ if __name__ == '__main__':
                 print '%s - %s: None' % (p, key)
 
     print pf.observer.date
-
+    """
     """
     for STAR_CALC in ['aa', 'ephem']:
 

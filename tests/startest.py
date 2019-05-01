@@ -64,13 +64,13 @@ def main(args):
 
     stars = mk_star_list(AA_STAR_CAT_FILE)
 
-    print('UT: %s' % args.ut)
-    print('deltaT: %s' % args.deltat)
-    print('lat: %s' % args.lat)
-    print('lon: %s' % args.lon)
-    print('hoe: %s' % args.hoe)
-    print('temp: %s' % args.temp)
-    print('pressure: %s' % args.pressure)
+    print('UT:\t%s' % args.ut)
+    print('deltaT:\t%s' % args.deltat)
+    print('lat:\t%s' % args.lat)
+    print('lon:\t%s' % args.lon)
+    print('hoe:\t%s' % args.hoe)
+    print('temp:\t%s' % args.temp)
+    print('pressure:\t%s' % args.pressure)
     print('---')
     print('star\t' + '\t'.join([k for k, _, _ in DATA_COLS]))
     for i, star in enumerate(stars):
