@@ -35,7 +35,8 @@ from skyfield.units import Angle as sfAngle
 logging.basicConfig(level=logging.DEBUG)
 
 # celestial body list
-bodyList = ["Sun LL", "Sun UL", "Moon LL", "Moon UL", "Venus", "Mars", "Jupiter", "Saturn", "star"]
+bodyList = ["Sun LL", "Sun UL", "Moon LL", "Moon UL", "Venus", "Mars",
+        "Jupiter", "Saturn", "star"]
 
 # import starcat which will provide function navStar() that returns an ephem
 # star object for the star name passed to navStar; also provides dictionary
