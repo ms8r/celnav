@@ -3,21 +3,21 @@ from math import degrees
 from celnav import celnav as cn
 
 
-f = cn.Fix(COG=260, SOG=6., UT=(2012, 4, 14, 12, 45, 0))
+f = cn.Fix(COG=260, SOG=6., UT=(2005, 5, 11, 0, 19, 39))
 
-f.lopList.append(cn.LOP(fix=f, body='Moon LL', starName=None, indexError=3.6,
-    heightOfEye=1.8, lat=-8.316666667, lon=-106.3666667, elevation=0,
-    pressure=1010, temp=27))
+f.lopList.append(cn.LOP(fix=f, body='Sun UL', starName=None, indexError=2.4,
+    heightOfEye=6.5, lat=24, lon=-22.42, elevation=0,
+    pressure=1010, temp=10))
 
-f.lopList[0].sightList.append(cn.Sight(Hs=66.49333333, UT=(2012, 4, 14, 12, 39,
-    48)))
+f.lopList[0].sightList.append(cn.Sight(Hs=59.675, UT=(2005, 5, 10, 11, 18,
+    3)))
 
-f.lopList.append(cn.LOP(fix=f, body='star', starName='Rigil Kentaurus',
-    indexError=3.6, heightOfEye=1.8, lat=-8.316666667, lon=-106.3666667,
-    elevation=0, pressure=1010, temp=27))
+f.lopList.append(cn.LOP(fix=f, body='Sun LL', starName=None, indexError=-2.9,
+    heightOfEye=4.6, lat=-24, lon=112.1083333, elevation=0,
+    pressure=1010, temp=10))
 
-f.lopList[1].sightList.append(cn.Sight(Hs=19.58333333, UT=(2012, 4, 14, 12, 31,
-    53)))
+f.lopList[1].sightList.append(cn.Sight(Hs=37.69166667, UT=(2005, 5, 11, 2, 19,
+    55)))
 
 f.lopList[0].lopSightIndex = 0
 f.lopList[1].lopSightIndex = 0
@@ -39,16 +39,17 @@ for i, lop in enumerate(f.lopList):
         print("'Hs': {},".format(s.Hs.decD))
         print("'UT': {},".format(s.UT))
         print('# Outputs')
-        print("'Ic': {}".format(s.Ic))
-        print("'Az': {}".format(s.Az.decD))
-        print("'srfIc': {}".format(s.srfIc))
+        print("'Ic': {},".format(s.Ic))
+        print("'Az': {},".format(s.Az.decD))
+        print("'srfIc': {},".format(s.srfIc))
+
 f.calc2LOPFix()
 print('# Fix')
 print("'UT': {}".format(f.UT))
 print("'COG': {}".format(f.COG.decD))
 print("'SOG': {}".format(f.SOG))
 print('# Outputs')
-print("'lat': {}".format(f.lat.decD))
-print("'lon': {}".format(f.lon.decD))
+print("'lat': {},".format(f.lat.decD))
+print("'lon': {},".format(f.lon.decD))
 
 
