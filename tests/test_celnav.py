@@ -63,26 +63,23 @@ def setup_fix(fix_param, lop_params, sight_params):
     return f
 
 
-def check_sights(sights, exp_results, labels=None):
+def check_outputs(objects, exp_results, labels=None):
     """
-    Checks each `Sight` objects in list `sights` vs the parameter dicts in
-    `exp_results` (a list). For `Angle` instances in a Sight the `decD` float
-    value will be used. `labels` allows passing a list of IDs for each sight
-    that will be printed in case of test failure to indicate which sight
+    Checks each object in list `objects` vs the parameter dicts in
+    `exp_results` (a list). For `Angle` instances in an object the `decD` float
+    value will be used. `labels` allows passing a list of IDs for each object
+    that will be printed in case of test failure to indicate which object
     failed.
     """
     if labels is None:
-        labels = range(1, len(sights) + 1)
-    for label, exp_res, s in zip(labels, exp_results, sights):
+        labels = range(1, len(objects) + 1)
+    for lbl, exp_res, obj in zip(labels, exp_results, objects):
         for key, val in exp_res.items():
-            out = getattr(s, key)
+            out = getattr(obj, key)
             out = out.decD if isinstance(out, cn.Angle) else out
             assert out == pytest.approx(val, rel=1e-6), \
-                    "Sight '{}': Sight assertion failed on {}".format(label,
-                            key)
-
-
-
+                    "{} '{}': assertion failed on {}".format(
+                            obj.__class__.__name__, lbl, key)
 
 
 def test_Fix():
@@ -90,110 +87,73 @@ def test_Fix():
     Sets up LOP and Sight, check Ic, Az, and short runf fix Ic.
     Data taken from Namani 2012 fixes calculated by spreadsheet.
     """
-    def check_fix(fix_param, lop_params, sight_params, fix_exp_res,
-            sight_exp_res_list):
-        """
-        Takes three dicts (resp. list of dicts for LOPs and Sights) with init
-        paramaters for Fix, 2 LOPs, 2 Sights (one for each LOP). Last two args
-        are expected results.
-        """
-        f = cn.Fix(**fix_param)
-        for lop_param, sight_param in zip(lop_params, sight_params):
-            f.lopList.append(cn.LOP(fix=f, **lop_param))
-            f.lopList[-1].sightList.append(cn.Sight(**sight_param))
-            f.lopList[-1].lopSightIndex = 0
-            f.lopList[-1].calcIcAz()
-        f.calc2LOPFix()
-        for key, val in fix_exp_res.items():
-            out = f.__dict__[key]
-            out = out.decD if isinstance(out, cn.Angle) else out
-            assert out == pytest.approx(val, rel=1e-6), \
-                    'Fix assertion failed on {}'.format(key)
-        sight_outputs = [lop.sightList[0].__dict__ for lop in f.lopList]
-        for s_exp_res, s_output in zip(sight_exp_res_list, sight_outputs):
-            for key, val in s_exp_res.items():
-                out = s_output[key]
-                out = out.decD if isinstance(out, cn.Angle) else out
-                assert out == pytest.approx(val, rel=1e-6), \
-                    'Sight assertion failed on {}'.format(key)
 
-    #------------------------------------------------
-    # source: Namani SightReduction+Fix_20120414_0130
-    #------------------------------------------------
-    fix_param = {
-            'UT': (2012, 4, 14, 1, 42, 0),
-            'COG': 260,
-            'SOG': 5.5
-    }
-    fix_exp_res = {
-            'lat': -8.2248923649,
-            'lon': -105.298504556
+    fix_labels = ['SightReduction+Fix_20120414_0130',
+                  'SightReduction+Fix_20120414_1245',
+    ]
+    fix_params = [
+            {'UT': (2012, 4, 14, 1, 42, 0), 'COG': 260, 'SOG': 5.5},
+            {'UT': (2012, 4, 14, 12, 45, 0), 'COG': 260, 'SOG': 6.0},
+    ]
+    fix_exp_res = [
             # note: almanac based manual calculation yields
             # lat == -8.223641,  lon == -105.299139
-    }
-    lop_params = [
-            {'body': 'Venus', 'starName': None, 'indexError': 3.6,
-                'heightOfEye': 1.8, 'lat': -8.233333333, 'lon': -105.35,
-                'elevation': 0.0, 'temp': 27.0, 'pressure': 1010.0},
-            {'body': 'star', 'starName': 'Canopus', 'indexError': 3.6,
-                'heightOfEye': 1.8, 'lat': -8.233333333, 'lon': -105.35,
-                'elevation': 0.0, 'temp': 27.0, 'pressure': 1010.0}
-    ]
-    sight_params = [
-            {'Hs': 29.11666667, 'UT': (2012, 4, 14, 1, 24, 29)},
-            {'Hs': 41.53333333, 'UT': (2012, 4, 14, 1, 29, 21)}
-    ]
-    sight_exp_res_list= [
-            {'Ic': -3.2892414756, 'Az': 306.04014953, 'srfIc':
-                -2.174642047},
-            # note: almanac based manual calculation yields
-            # Ic == -3.214669, srfIc == -2.10005
-            {'Ic': -2.0294285228, 'Az': 198.89034115, 'srfIc':
-                -1.469193470}
-            # note: almanac based manual calculation yields
-            # Ic == -2.088328, srfIc == -1.528076
-    ]
-
-    check_fix(fix_param, lop_params, sight_params, fix_exp_res,
-            sight_exp_res_list)
-
-    #------------------------------------------------
-    # source: Namani SightReduction+Fix_20120414_1245
-    #------------------------------------------------
-    fix_param = {
-            'UT': (2012, 4, 14, 12, 45, 0),
-            'COG': 260,
-            'SOG': 6.0
-    }
-    fix_exp_res = {
-            'lat': -8.44568335689,
-            'lon': -106.366544057
+            {'lat': -8.2248923649, 'lon': -105.298504556},
             # note: almanac based manual calculation yields
             # lat == -8.443068, lon == -106.367446
-    }
+            {'lat': -8.44568335689, 'lon': -106.366544057},
+    ]
     lop_params = [
-            {'body': 'Moon LL', 'starName': None, 'indexError': 3.6,
+            [{'body': 'Venus', 'starName': None, 'indexError': 3.6,
+                'heightOfEye': 1.8, 'lat': -8.233333333, 'lon': -105.35,
+                'elevation': 0.0, 'temp': 27.0, 'pressure': 1010.0},
+             {'body': 'star', 'starName': 'Canopus', 'indexError': 3.6,
+                'heightOfEye': 1.8, 'lat': -8.233333333, 'lon': -105.35,
+                'elevation': 0.0, 'temp': 27.0, 'pressure': 1010.0}],
+            [{'body': 'Moon LL', 'starName': None, 'indexError': 3.6,
                 'heightOfEye': 1.8, 'lat': -8.316666667, 'lon': -106.3666667,
                 'elevation': 0.0, 'temp': 27.0, 'pressure': 1010.0},
-            {'body': 'star', 'starName': 'Rigil Kentaurus', 'indexError': 3.6,
+             {'body': 'star', 'starName': 'Rigil Kentaurus', 'indexError': 3.6,
                 'heightOfEye': 1.8, 'lat': -8.316666667, 'lon': -106.3666667,
-                'elevation': 0.0, 'temp': 27.0, 'pressure': 1010.0}
+                'elevation': 0.0, 'temp': 27.0, 'pressure': 1010.0}]
     ]
     sight_params = [
-            {'Hs': 66.49333333, 'UT': (2012, 4, 14, 12, 39, 48)},
-            {'Hs': 19.58333333, 'UT': (2012, 4, 14, 12, 31, 53)}
+            [{'Hs': 29.11666667, 'UT': (2012, 4, 14, 1, 24, 29)},
+             {'Hs': 41.53333333, 'UT': (2012, 4, 14, 1, 29, 21)}],
+            [{'Hs': 66.49333333, 'UT': (2012, 4, 14, 12, 39, 48)},
+             {'Hs': 19.58333333, 'UT': (2012, 4, 14, 12, 31, 53)}]
     ]
-    sight_exp_res_list= [
-            {'Ic': 2.5918335371, 'Az': 105.870957909, 'srfIc': 2.12394842094},
-            # note: almanac based manual calculation yields
-            # Ic == 2.496984,  srfIc == 2.029086
-            {'Ic': 6.04229687576, 'Az': 207.774381873, 'srfIc': 6.84576314265}
-            # note: almanac based manual calculation yields
-            # Ic == 5.928307,   srfIc == 6.731798
+    sight_exp_results= [
+            [# note: almanac based manual calculation yields
+             # Ic == -3.214669, srfIc == -2.10005
+             {'Ic': -3.2892414756, 'Az': 306.04014953, 'srfIc':
+                 -2.174642047},
+             # note: almanac based manual calculation yields
+             # Ic == -2.088328, srfIc == -1.528076
+             {'Ic': -2.0294285228, 'Az': 198.89034115, 'srfIc':
+                 -1.469193470}],
+            [# note: almanac based manual calculation yields
+             # Ic == 2.496984,  srfIc == 2.029086
+             {'Ic': 2.5918335371, 'Az': 105.870957909, 'srfIc':
+                 2.12394842094},
+             # note: almanac based manual calculation yields
+             # Ic == 5.928307,   srfIc == 6.731798
+             {'Ic': 6.04229687576, 'Az': 207.774381873, 'srfIc':
+                 6.84576314265}]
     ]
 
-    check_fix(fix_param, lop_params, sight_params, fix_exp_res,
-            sight_exp_res_list)
+    for f_lbl, fix_par, lop_par, sight_par, f_exp_res, s_exp_res in zip(
+            fix_labels, fix_params, lop_params, sight_params, fix_exp_res,
+            sight_exp_results):
+        f = setup_fix(fix_par, lop_par, sight_par)
+        # check sight outputs Ic, Az, srfIc:
+        sights = [lop.sightList[0] for lop in f.lopList]
+        labels = ['{} - {}'.format(f_lbl, lop.starName if lop.starName else
+            lop.body) for lop in f.lopList]
+        check_outputs(sights, s_exp_res, labels)
+        # check fix lat/lon
+        f.calc2LOPFix()
+        check_outputs([f], [f_exp_res], [f_lbl])
 
 
 def test_sun_sights():
@@ -204,6 +164,7 @@ def test_sun_sights():
     """
     labels = ['NW of Hawaii', 'NE of Brisbane', 'SE of Canary Islands',
             'W of Australia']
+    # dummy fix
     fix_param = {
             'UT': (2005, 5, 12, 0, 0, 0),
             'COG': 0.,
@@ -236,16 +197,6 @@ def test_sun_sights():
             {'Ic': 3.46574723513, 'Az': 39.6443201504},
     ]
 
-    f = cn.Fix(**fix_param)
-    for lop_par, sight_par in zip(lop_params, sight_params):
-        f.lopList.append(cn.LOP(fix=f, **lop_par))
-        f.lopList[-1].sightList.append(cn.Sight(**sight_par))
-        f.lopList[-1].lopSightIndex = 0
-        f.lopList[-1].calcIcAz()
-    sight_outputs = [lop.sightList[0].__dict__ for lop in f.lopList]
-    for label, s_exp_res, s_output in zip(labels, exp_results, sight_outputs):
-        for key, val in s_exp_res.items():
-            out = s_output[key]
-            out = out.decD if isinstance(out, cn.Angle) else out
-            assert out == pytest.approx(val, rel=1e-6), \
-                    '{}: Sight assertion failed on {}'.format(label, key)
+    f = setup_fix(fix_param, lop_params, sight_params)
+    sights = [lop.sightList[0] for lop in f.lopList]
+    check_outputs(sights, exp_results, labels)
