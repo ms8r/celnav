@@ -11,6 +11,9 @@ executable must be specified in constant AA_EXE_FILE below, and the path to the
 aa star catalogue file mus be specified in AA_STAR_CAT_FILE below.
 """
 
+from __future__ import division
+from __future__ import print_function
+
 __author__ = "markus@namaniatsea.org"
 __version__ = "0.2.2"
 
@@ -32,6 +35,7 @@ import ephem
 
 from skyfield.units import Angle as sfAngle
 
+
 logging.basicConfig(level=logging.DEBUG)
 
 # celestial body list
@@ -49,6 +53,7 @@ starList.sort()
 
 # import cncfg to get access to ConfigParser obejct:
 import cncfg
+import cn_data as DATA
 
 #-----------------------------------------------------------------------------
 # The following three constants can be overritten in celnav.ini in section
@@ -78,6 +83,7 @@ logging.debug('STAR_CALC: %s', STAR_CALC)
 # assemble start-up log-string (can be written to log-file by other module):
 START_UP_LOG_MSG = ('### celnav.STAR_CALC == \'%s\' ###  starcat.DB_SOURCE == \'%s\' ###'
         % (STAR_CALC, starcat.DB_SOURCE))
+
 
 # import generic print overloader
 import classprint
@@ -1333,20 +1339,21 @@ def normAngle(angle):
 
 
 def ghaAries(ut):
-    """Returns GHA Aries for ut (Y, M, D, h, m, s) as degrees incl. decimal fraction
     """
-    st = Angle()
-    utcz = ephem.Observer()
-    utcz.lon = 0
-    utcz.date = ut
-    st.rad = utcz.sidereal_time()
-
-    return st.decD
+    Returns GHA Aries for ut (Y, M, D, h, m, s) as degrees incl. decimal
+    fraction
+    """
+    # note: according to Umland and
+    # http://www2.arnes.si/~gljsentvid10/sidereal.htm
+    # GHA Aries is equal to apparent sideral time (GAST) rather than mean
+    # sideral time (GMST). Using gast below witll fail tests though vv 2005
+    # tabulated values in Nautical Almanac.
+    return DATA.ts.utc(*ut).gast * 15
 
 
 def sha(ra):
     """Returns SHA for Right Ascension ra (in radians which is how ephem stores them).
-    SHA is provided in degrees incl., decimal fraction.
+    SHA is provided in degrees incl. decimal fraction.
     """
     return 360 - degrees(ra)
 

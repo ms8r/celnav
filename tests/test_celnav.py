@@ -48,6 +48,19 @@ def test_Angle():
     assert b.degMin == (175, pytest.approx(12.675968764519894), 1)
 
 
+def test_ghaAries():
+    # `data`: ut, exp. res. degrees, exp. res. minutes (rounded to 1 decimal)
+    # expected result taken from 2005 Nautical Almanac
+    data = [((2005, 5, 10, 15, 0, 0), 93, 30.5),
+            ((2005, 5, 12, 3, 0, 0), 274, 59.2),]
+    for ut, exp_deg, exp_minutes in data:
+        gha_aries =  cn.ghaAries(ut)
+        gha_deg = int(gha_aries)
+        gha_minutes = (gha_aries - gha_deg) * 60.
+        assert gha_deg == exp_deg
+        assert round(gha_minutes, 1) == pytest.approx(exp_minutes)
+
+
 def setup_fix(fix_param, lop_params, sight_params):
     """
     Takes three dicts (resp. list of dicts for LOPs and Sights) with init
