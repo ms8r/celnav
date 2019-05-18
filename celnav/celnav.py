@@ -34,6 +34,7 @@ import logging
 import ephem
 
 from skyfield.units import Angle as sfAngle
+from skyfield.api import Topos
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -54,36 +55,6 @@ starList.sort()
 # import cncfg to get access to ConfigParser obejct:
 import cncfg
 import cn_data as DATA
-
-#-----------------------------------------------------------------------------
-# The following three constants can be overritten in celnav.ini in section
-# [celnav].
-#-----------------------------------------------------------------------------
-
-SECTION_ID = 'celnav'
-
-# path to aa executable and star catalog
-AA_EXE_FILE = "/usr/bin/aa"
-if cncfg.cncfg.has_option(SECTION_ID, 'AA_EXE_FILE'):
-    AA_EXE_FILE = cncfg.cncfg.get(SECTION_ID, 'AA_EXE_FILE')
-
-AA_STAR_CAT_FILE = "/usr/share/aa/star.cat"
-if cncfg.cncfg.has_option(SECTION_ID, 'AA_STAR_CAT_FILE'):
-    AA_STAR_CAT_FILE = cncfg.cncfg.get(SECTION_ID, 'AA_STAR_CAT_FILE')
-
-# ephemeris calculator to be used for stars ("aa" -> Stephen Mosher's
-# Astronomical Almanac, "ephem" = PyEphem)
-STAR_CALC = "ephem"
-if cncfg.cncfg.has_option(SECTION_ID, 'STAR_CALC'):
-    STAR_CALC = cncfg.cncfg.get(SECTION_ID, 'STAR_CALC')
-
-logging.debug('STAR_CALC: %s', STAR_CALC)
-#-----------------------------------------------------------------------------
-
-# assemble start-up log-string (can be written to log-file by other module):
-START_UP_LOG_MSG = ('### celnav.STAR_CALC == \'%s\' ###  starcat.DB_SOURCE == \'%s\' ###'
-        % (STAR_CALC, starcat.DB_SOURCE))
-
 
 # import generic print overloader
 import classprint
@@ -107,7 +78,7 @@ class Angle(classprint.AttrDisplay):
         signStr():   e.g. '-22 30.0'
         intStr():    e.g. '-23' (rounded)
     These primarily serve as output formats for different UI fields and almanac
-    pages. Note that the lat/lon methods to not check if angles are greater
+    pages. Note that the lat/lon methods do not check if angles are greater
     than 90 and 180 degrees respectively.
     """
 
@@ -201,12 +172,12 @@ class Sight(classprint.AttrDisplay):
     """
     Wrapper for sextant height, apparent height, UT, Ic and Az
     """
-    def __init__(self, Hs=0, UT=None, Ic=0, Az=0):
+    def __init__(self, Hs=0, utc=None, Ic=0, Az=0):
         """
         Initializes Sight object
         Hs: uncorrected sextant altitude in degrees
             with decimal fraction
-        UT: UT date and time of Sight as
+        utc: UTC date and time of Sight as
             (Y, M, D, h, m, s)
         Ic: Intercept in nm
         Az: Azimuth in decD
@@ -215,9 +186,9 @@ class Sight(classprint.AttrDisplay):
         """
         self.Hs = Angle(Hs)
         self.Ha = Angle()
-        if UT == None:
-            UT = dt.datetime.utcnow().timetuple()[:6]
-        self.UT = UT
+        if utc == None:
+            utc = dt.datetime.utcnow().timetuple()[:6]
+        self.utc = utc
         self.Ic = Ic
         # Ic corrected for short run fix (based on vessel SOG, COG)
         self.srfIc = Ic
@@ -281,26 +252,19 @@ class LOP(classprint.AttrDisplay):
     observed body, sextant altitude, index error, height of eye,
     apparent topocentric altitude
     """
-
-    # dictionary for aa calculation of Ha and Az (see aaStars() below)
-    if STAR_CALC == 'aa':
-        aaReDict = {}
-        aaReDict['alt'] = re.compile(r"^Topocentric:  Altitude (?P<alt>[^ ]*) deg, Azimuth [^ ]* deg$")
-        aaReDict['az'] = re.compile(r"^Topocentric:  Altitude [^ ]* deg, Azimuth (?P<az>[^ ]*) deg$")
-
-    def __init__(self, fix=None, body='Sun LL', starName=None, indexError=0, heightOfEye=0,
-            lat=0, lon=0, elevation=0, temp=20, pressure = 1010):
+    def __init__(self, fix=None, body='Sun LL', star_name=None, index_error=0,
+            hoe=0, lat=0, lon=0, elevation=0, temp=20, pressure = 1010):
         """
         Initialization values for
-        lat:                latitude in degrees as decimal fraction (S = -)
-        lon:                longitude in degrees as decimal fraction (W = -)
+        lat:                assumed latitude in degrees as decimal fraction (S = -)
+        lon:                assumed longitude in degrees as decimal fraction (W = -)
         elevation:          above sea level in meters
-        indexError:         in arc minutes
-        heightOfEye:        in m
+        index_error:        in arc minutes
+        hoe:                height of eye in m
         temp:               in degrees C
         pressure:           in mb
         """
-        # fix to which LOP belongs; can be used to access SOG/COG/UT from Fix
+        # fix to which LOP belongs; can be used to access SOG/COG/utc from Fix
         # for MOO correction
         self.fix = fix
 
@@ -310,39 +274,39 @@ class LOP(classprint.AttrDisplay):
         #   - star
         # If "star", starName must be a star name that is known to PyEphem
         self.body = body
-        self.starName = starName
+        self.star_name = star_name
 
-        if starName != None:
-            self.starNum = starcat.navStarNum[starName]
+        if star_name != None:
+            self.star_num = starcat.navStarNum[starName]
         else:
-            self.starNum = None
+            self.star_num = None
+        self.index_error = Angle(index_error / 60.)
+        self.hoe = hoe
+        self.dip = Angle(-(0.0293 * sqrt(self.hoe)))
+        self.observer = DATA.planets['earth'] + Topos(latitude_degrees=lat,
+                longitude_degrees=lon, elevation_m=elevation)
+        self.temp = temp
+        self.pressure = pressure
 
         # list of Sight objects (to be appended with each shot)
         self.sightList = []
         # index for Sight in self.sightList to be used for fix calculation
         self.lopSightIndex = -1
 
-        self.observer =  MyObserver(lat = lat, lon = lon, elevation = elevation, indexError = indexError,
-                heightOfEye = heightOfEye, temp = temp, pressure = pressure)
-                                # needs to be updated with time of shot before call to
-                                # PyEphem for computation of topocentric apparent
-                                # altitude
-
 
     def calcHa(self):
         """Calculates and sets apparent altitudes in sightList based on Hs,
-        indexError and dip; calls calcDip() just in case...
+        indexError and dip
         """
-        MyObserver.calcDip(self.observer)
         for s in self.sightList:
-            s.Ha.rad = s.Hs.rad + self.observer.indexError.rad + self.observer.dip.rad
+            s.Ha.rad = s.Hs.rad + self.index_error.rad + self.dip.rad
 
 
     def calcIcAz(self):
         """Calculates intercept Ic and azimuth Az for all shots in self.sightList
         and updates Ic and Az attributes of each shot accordingly. Also updates
         srfIc for short-run fix calculation from multiple LOPs. To correct Ic for
-        MOO COG, SOG and UT from class Fix are used (shared attributes at class level).
+        MOO COG, SOG and utc from class Fix are used (shared attributes at class level).
         Uses PyEphem to calculate ephemeris data (or aa if STAR_CALC == 'aa').
         PyEphem provides apparent topocentric altitudes which are compared
         to sextant altitude corrected for index error and dip in order to calculate
@@ -350,51 +314,35 @@ class LOP(classprint.AttrDisplay):
         adjust computed apparen topocentric altitudes to yield values that can be compared
         to upper or lower limb sights.
         """
-        splitBody = self.body.split()   # split off "LL" or "UL" for sun and moon
+        self.calc.Ha()
 
-        self.calcHa()                   # calculate apparent observed altitude for
-                                        # all shots
+        # split off "LL" or "UL" for sun and moon
+        split_body = self.body.split()
 
         for s in self.sightList:
 
-            self.observer.date = s.UT
+            ts_sight = DATA.ts.utc(*s.utc)
 
             # create ephem object instance for body;
-            if splitBody[0] == 'star':
+            if split_body[0] == 'star':
 
-                if STAR_CALC == 'ephem':
-
-                    e = starcat.navStar(self.starName)
-                    e.compute(self.observer)    # computing with Observer argument will
-                                                # yield topocentric apparent altitude
-                    Hc = Angle(e.alt * 180 / pi)
-                                                # calculated topocentric apparent altitude
-                                                # incl. refraction
-                    s.Az = Angle(e.az * 180 / pi)
-
-                elif STAR_CALC == 'aa':
-
-                    d = aaStars(LOP.aaReDict, AA_STAR_CAT_FILE, self.starNum, ut = s.UT,
-                            lat = degrees(self.observer.lat), lon = degrees(self.observer.lon),
-                            hoe = self.observer.heightOfEye, temp = self.observer.temp,
-                            pressure = self.observer.pressure)
-
-                    # extract Hc and Az:
-                    Hc = Angle(float(d['alt']))
-                    s.Az = Angle(float(d['az']))
-
-            else:
-
-                e = ephem.__dict__[splitBody[0]]()
-
+                e = starcat.navStar(self.starName)
                 e.compute(self.observer)    # computing with Observer argument will
                                             # yield topocentric apparent altitude
-                s.Az = Angle(e.az * 180 / pi)
                 Hc = Angle(e.alt * 180 / pi)
                                             # calculated topocentric apparent altitude
                                             # incl. refraction
-                if len(splitBody) > 1:      # Sun or Moon with "LL" or "UL"
-                    if splitBody[1] == "UL":
+                s.Az = Angle(e.az * 180 / pi)
+
+            else:
+                body = DATA.planets[split_body[0].lower()]
+                astro = self.observer.at(ts_sight).observe(body)
+                alt, az, dist = astro.apparent().altaz(temperature_C=self.temp,
+                        pressure_mbar=self.pressure)
+                s.Az = az.degrees
+                if len(split_body) > 1:      # Sun or Moon with "LL" or "UL"
+                    # sd =
+                    if split_body[1] == "UL":
                         Hc.rad += e.radius  # add semidiamter to calc. altitude to make
                                             # it comparable to observed Ha
                     else:
@@ -404,12 +352,14 @@ class LOP(classprint.AttrDisplay):
                                             # centric values. The value of e.radius will
                                             # will differ from the SD value listed in the
                                             # NA (geocentric).
+                else:
+                    sd = 0
 
             s.Ic = (s.Ha.decD - Hc.decD) * 60
 
             # calculate short-run fix intercept, corrected for MOO:
             # calculate difference between fix and sight times:
-            dT = dt.datetime(*self.fix.UT) - dt.datetime(*s.UT) # as dt.timedelta
+            dT = dt.datetime(*self.fix.utc) - dt.datetime(*s.utc) # as dt.timedelta
             dT_hrs = dT.days * 24 + dT.seconds / 3600.0         # in hours
 
             # now calculate MOO corrected Intercept based on Fix SOG/COG
@@ -419,21 +369,21 @@ class LOP(classprint.AttrDisplay):
 class Fix(classprint.AttrDisplay):
     """Top-level class: a Fix consists of multiple LOPs which in turn
     each consist of one or more Sights. Also defines vessel's SOG and COG
-    for short-run running fixes, fix lat/lon and UT.
+    for short-run running fixes, fix lat/lon and utc.
 
     SOG:        speed over ground in kn
     COG:        course over ground in decD true
-    UT:         date and time for fix (UT) as (Y, M, D, h, m, s);
-                will be initialized to current UT if empty
+    utc:        date and time for fix (utc) as (Y, M, D, h, m, s);
+                will be initialized to current utc if empty
     lat:        fix latitude in decimal degrees
     lon:        fix longitude in decimal degrees
     Also initializes lopList as []
     """
-    def __init__(self, SOG = 0, COG = 0, UT = None, lat = 0, lon = 0):
+    def __init__(self, SOG = 0, COG = 0, utc = None, lat = 0, lon = 0):
 
-        if UT == None:
-            UT = dt.datetime.utcnow().timetuple()[:6]
-        self.UT = UT
+        if utc == None:
+            utc = dt.datetime.utcnow().timetuple()[:6]
+        self.utc = utc
 
         self.SOG = float(SOG)
         self.COG = Angle(COG)
@@ -475,8 +425,8 @@ class Fix(classprint.AttrDisplay):
         I2 = sight2.srfIc
         Z1 = sight1.Az.rad
         Z2 = sight2.Az.rad
-        t1 = sight1.UT
-        t2 = sight2.UT
+        t1 = sight1.utc
+        t2 = sight2.utc
 
         # check if both LOPs use same AP (must be less than 0.1' apart):
         maxDiff = pi / (60 * 180)
@@ -1342,7 +1292,7 @@ def ghaAries(time, scale='ut1'):
     """
     Returns GHA Aries for `time` (Y, M, D, h, m, s) as degrees incl. decimal
     fraction. `scale` must be one of 'ut1', 'utc', 'tai', 'tt', or 'tdb'
-    (Barycentric Dynamical Time (the JPL’s T_eph))
+    (Barycentric Dynamical Time (the JPL's T_eph))
     """
     ts = getattr(DATA.ts, scale)
     return ts(*time).gast * 15
@@ -1361,6 +1311,33 @@ def gha(ra, ut):
     """
     return normAngle(ghaAries(ut) + sha(ra))
 
+
+def semidiameter(body, t, observer=None):
+    """Returns the angular semidiameter of `body` (a skyfield planet object) in
+    arc minutes, viewed from `observer` (another skyfield planet) at `t` (a
+    skyfield timescale object. If no observer is specified the geocentric
+    semidiamter will be returned.
+    """
+    if not observer:
+        observer = DATA.planets['earth']
+
+    dist = observer.at(t).observe(body).apparent().distance()
+    target = body.target_name.split()[1].lower()
+
+    # r = DATA.radius[target].km
+    # return degrees(r / dist.km) * 60
+
+    if target == 'sun':
+        # from Umland, Chapter 15, Ephimerides of the Sun:
+        sd = 16.02 / dist.au
+    elif target == 'moon':
+        # from Jean Meeus' Astronomical Algorithms:
+        sd = 358473400 / dist.km / 60.
+    else:
+        raise NotImplementedError(
+                "no semidiamter for body '{}'".format(target))
+
+    return sd
 
 def hpMoon(sd):
     """Returns a float with horizontal parallax for moon in degrees (incl.

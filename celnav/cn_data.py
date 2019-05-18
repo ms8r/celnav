@@ -29,3 +29,4 @@ _radii_km = [
 ]
 
 radius = {name.lower().split()[-1]: Distance(km=r) for name, r in _radii_km}
+
