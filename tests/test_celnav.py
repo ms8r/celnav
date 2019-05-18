@@ -49,12 +49,13 @@ def test_Angle():
 
 
 def test_ghaAries():
-    # `data`: ut, exp. res. degrees, exp. res. minutes (rounded to 1 decimal)
-    # expected result taken from 2005 Nautical Almanac
-    data = [((2005, 5, 10, 15, 0, 0), 93, 30.5),
-            ((2005, 5, 12, 3, 0, 0), 274, 59.2),]
-    for ut, exp_deg, exp_minutes in data:
-        gha_aries =  cn.ghaAries(ut)
+    # `data`: time tuple, scale, exp. res. degrees, exp. res. minutes (rounded
+    # to 1 decimal) expected result taken from 2005 Nautical Almanac
+    data = [((2005, 5, 10, 15, 0, 0), 'ut1', 93, 30.5),
+            ((2005, 5, 10, 15, 0, 0.6030142307281494), 'utc', 93, 30.5),
+            ((2005, 5, 12, 3, 0, 0), 'ut1', 274, 59.2),]
+    for time, scale, exp_deg, exp_minutes in data:
+        gha_aries =  cn.ghaAries(time, scale)
         gha_deg = int(gha_aries)
         gha_minutes = (gha_aries - gha_deg) * 60.
         assert gha_deg == exp_deg

@@ -1338,17 +1338,14 @@ def normAngle(angle):
     return 360 * (angle/360.0 - floor(angle/360.0))
 
 
-def ghaAries(ut):
+def ghaAries(time, scale='ut1'):
     """
-    Returns GHA Aries for ut (Y, M, D, h, m, s) as degrees incl. decimal
-    fraction
+    Returns GHA Aries for `time` (Y, M, D, h, m, s) as degrees incl. decimal
+    fraction. `scale` must be one of 'ut1', 'utc', 'tai', 'tt', or 'tdb'
+    (Barycentric Dynamical Time (the JPL’s T_eph))
     """
-    # note: according to Umland and
-    # http://www2.arnes.si/~gljsentvid10/sidereal.htm
-    # GHA Aries is equal to apparent sideral time (GAST) rather than mean
-    # sideral time (GMST). Using gast below witll fail tests though vv 2005
-    # tabulated values in Nautical Almanac.
-    return DATA.ts.utc(*ut).gast * 15
+    ts = getattr(DATA.ts, scale)
+    return ts(*time).gast * 15
 
 
 def sha(ra):
