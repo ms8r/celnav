@@ -135,6 +135,12 @@ class Angle(classprint.AttrDisplay):
                 sign = 1
             self.__dict__["degMin"] = (d, m, sign)
 
+    def __add__(self, other):
+        return Angle(self.decD + other.decD)
+
+    def __sub__(self, other):
+        return Angle(self.decD - other.decD)
+
     def latStr(self):
         """Returns angle as latitude string (e.g. 'N 20 34.5')
         """
@@ -314,14 +320,14 @@ class LOP(classprint.AttrDisplay):
         adjust computed apparen topocentric altitudes to yield values that can be compared
         to upper or lower limb sights.
         """
-        self.calc.Ha()
+        self.calcHa()
 
         # split off "LL" or "UL" for sun and moon
         split_body = self.body.split()
 
         for s in self.sightList:
 
-            ts_sight = DATA.ts.utc(*s.utc)
+            t_sight = DATA.ts.utc(*s.utc)
 
             # create ephem object instance for body;
             if split_body[0] == 'star':
@@ -336,24 +342,15 @@ class LOP(classprint.AttrDisplay):
 
             else:
                 body = DATA.planets[split_body[0].lower()]
-                astro = self.observer.at(ts_sight).observe(body)
+                astro = self.observer.at(t_sight).observe(body)
                 alt, az, dist = astro.apparent().altaz(temperature_C=self.temp,
                         pressure_mbar=self.pressure)
-                s.Az = az.degrees
+                Hc = Angle(alt.degrees)
+                s.Az = Angle(az.degrees)
                 if len(split_body) > 1:      # Sun or Moon with "LL" or "UL"
-                    # sd =
-                    if split_body[1] == "UL":
-                        Hc.rad += e.radius  # add semidiamter to calc. altitude to make
-                                            # it comparable to observed Ha
-                    else:
-                        Hc.rad -= e.radius  # same logic for lower limb sight
-                                            # Note: this radius is topocentric since the
-                                            # intercept calculation is done with all topo-
-                                            # centric values. The value of e.radius will
-                                            # will differ from the SD value listed in the
-                                            # NA (geocentric).
-                else:
-                    sd = 0
+                    sd = Angle(semidiameter(body, t_sight, self.observer) /
+                            60.)
+                    Hc = Hc + sd if split_body[1] == "UL" else Hc - sd
 
             s.Ic = (s.Ha.decD - Hc.decD) * 60
 
@@ -1316,7 +1313,7 @@ def semidiameter(body, t, observer=None):
     """Returns the angular semidiameter of `body` (a skyfield planet object) in
     arc minutes, viewed from `observer` (another skyfield planet) at `t` (a
     skyfield timescale object. If no observer is specified the geocentric
-    semidiamter will be returned.
+    semidiameter will be returned.
     """
     if not observer:
         observer = DATA.planets['earth']
@@ -1335,7 +1332,7 @@ def semidiameter(body, t, observer=None):
         sd = 358473400 / dist.km / 60.
     else:
         raise NotImplementedError(
-                "no semidiamter for body '{}'".format(target))
+                "no semidiameter for body '{}'".format(target))
 
     return sd
 

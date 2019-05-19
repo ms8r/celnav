@@ -48,6 +48,14 @@ def test_Angle():
     assert b.decD == pytest.approx(175.21126614607533)
     assert b.degMin == (175, pytest.approx(12.675968764519894), 1)
 
+    # add / subtract
+    a = cn.Angle(-742.5)
+    b = cn.Angle(192.4)
+    c = a + b
+    assert c.decD == pytest.approx(169.9)
+    c = a - b
+    assert c.decD == pytest.approx(-214.9)
+
 
 def test_ghaAries():
     # `data`: time tuple, scale, exp. res. degrees, exp. res. minutes (rounded
@@ -132,18 +140,18 @@ def test_Fix():
             {'lat': -8.44568335689, 'lon': -106.366544057},
     ]
     lop_params = [
-            [{'body': 'Venus', 'starName': None, 'indexError': 3.6,
+            [{'body': 'Venus', 'star_name': None, 'index_error': 3.6,
                 'hoe': 1.8, 'lat': -8.233333333, 'lon': -105.35,
                 'elevation': 0.0, 'temp': 27.0, 'pressure': 1010.0},
-             {'body': 'star', 'starName': 'Canopus', 'indexError': 3.6,
+             {'body': 'star', 'star_name': 'Canopus', 'index_error': 3.6,
                 'hoe': 1.8, 'lat': -8.233333333, 'lon': -105.35,
                 'elevation': 0.0, 'temp': 27.0, 'pressure': 1010.0}],
-            [{'body': 'Moon LL', 'starName': None, 'indexError': 3.6,
+            [{'body': 'Moon LL', 'star_name': None, 'index_error': 3.6,
                 'hoe': 1.8, 'lat': -8.316666667, 'lon': -106.3666667,
                 'elevation': 0.0, 'temp': 27.0, 'pressure': 1010.0},
-             {'body': 'star', 'starName': 'Rigil Kentaurus', 'indexError': 3.6,
-                'hoe': 1.8, 'lat': -8.316666667, 'lon': -106.3666667,
-                'elevation': 0.0, 'temp': 27.0, 'pressure': 1010.0}]
+             {'body': 'star', 'star_name': 'Rigil Kentaurus', 'index_error':
+                 3.6, 'hoe': 1.8, 'lat': -8.316666667, 'lon': -106.3666667,
+                 'elevation': 0.0, 'temp': 27.0, 'pressure': 1010.0}]
     ]
     sight_params = [
             [{'Hs': 29.11666667, 'utc': (2012, 4, 14, 1, 24, 29)},
@@ -176,7 +184,7 @@ def test_Fix():
         f = setup_fix(fix_par, lop_par, sight_par)
         # check sight outputs Ic, Az, srfIc:
         sights = [lop.sightList[0] for lop in f.lopList]
-        labels = ['{} - {}'.format(f_lbl, lop.starName if lop.starName else
+        labels = ['{} - {}'.format(f_lbl, lop.star_name if lop.star_name else
             lop.body) for lop in f.lopList]
         check_outputs(sights, s_exp_res, labels)
         # check fix lat/lon
@@ -184,7 +192,6 @@ def test_Fix():
         check_outputs([f], [f_exp_res], [f_lbl])
 
 
-@pytest.mark.skip
 def test_sun_sights():
     """
     Test against four sunsights listed in *Celestial Navigation in the GPS Age*
@@ -200,16 +207,16 @@ def test_sun_sights():
             'SOG': 0
     }
     lop_params = [
-            {'body': 'Sun LL', 'starName': None, 'indexError': -3.2,
+            {'body': 'Sun LL', 'star_name': None, 'index_error': -3.2,
                 'hoe': 3.14, 'lat': 24.0, 'lon': -153.8233333,
                 'elevation': 0.0, 'temp': 10.0, 'pressure': 1010.0},
-            {'body': 'Sun LL', 'starName': None, 'indexError': -1.3,
+            {'body': 'Sun LL', 'star_name': None, 'index_error': -1.3,
                 'hoe': 2.6, 'lat': -24.0, 'lon': 161.5283333,
                 'elevation': 0.0, 'temp': 10.0, 'pressure': 1010.0},
-            {'body': 'Sun UL', 'starName': None, 'indexError': 2.4,
+            {'body': 'Sun UL', 'star_name': None, 'index_error': 2.4,
                 'hoe': 6.5, 'lat': 24.0, 'lon': -22.42, 'elevation':
                 0.0, 'temp': 10.0, 'pressure': 1010.0},
-            {'body': 'Sun LL', 'starName': None, 'indexError': -2.9,
+            {'body': 'Sun LL', 'star_name': None, 'index_error': -2.9,
                 'hoe': 4.6, 'lat': -24.0, 'lon': 112.1083333,
                 'elevation': 0.0, 'temp': 10.0, 'pressure': 1010.0},
     ]
