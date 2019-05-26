@@ -99,7 +99,7 @@ def setup_fix(fix_param, lop_params, sight_params):
     return f
 
 
-def check_outputs(objects, exp_results, labels=None):
+def check_outputs(objects, exp_results, labels=None, rel=1e-6, abs=1e-12):
     """
     Checks each object in list `objects` vs the parameter dicts in
     `exp_results` (a list). For `Angle` instances in an object the `decD` float
@@ -113,7 +113,7 @@ def check_outputs(objects, exp_results, labels=None):
         for key, val in exp_res.items():
             out = getattr(obj, key)
             out = out.decD if isinstance(out, cn.Angle) else out
-            assert out == pytest.approx(val, rel=1e-6), \
+            assert out == pytest.approx(val, rel=rel, abs=abs), \
                     "{} '{}': assertion failed on {}".format(
                             obj.__class__.__name__, lbl, key)
 
@@ -237,4 +237,4 @@ def test_sun_sights():
 
     f = setup_fix(fix_param, lop_params, sight_params)
     sights = [lop.sightList[0] for lop in f.lopList]
-    check_outputs(sights, exp_results, labels)
+    check_outputs(sights, exp_results, labels, abs=0.05)

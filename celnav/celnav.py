@@ -356,8 +356,9 @@ class LOP(classprint.AttrDisplay):
 
             # calculate short-run fix intercept, corrected for MOO:
             # calculate difference between fix and sight times:
-            dT = dt.datetime(*self.fix.utc) - dt.datetime(*s.utc) # as dt.timedelta
-            dT_hrs = dT.days * 24 + dT.seconds / 3600.0         # in hours
+            dT = DATA.ts.utc(*self.fix.utc).utc_datetime() - \
+                    DATA.ts.utc(*s.utc).utc_datetime()
+            dT_hrs = dT.days * 24 + dT.seconds / 3600.0
 
             # now calculate MOO corrected Intercept based on Fix SOG/COG
             s.srfIc = s.Ic + cos(self.fix.COG.rad - s.Az.rad) * self.fix.SOG * dT_hrs
