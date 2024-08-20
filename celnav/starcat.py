@@ -120,11 +120,11 @@ NOTES ON UNDERLYING STAR DATA:
     comments at markus@namaniatsea.net - thanks!
 """ 
 
-import ConfigParser
+import configparser
 import ephem
 
 # import cncfg to get access to ConfigParser obejct:
-import cncfg
+import celnav.cncfg as cncfg
 
 SECTION_ID = 'starcat'
 

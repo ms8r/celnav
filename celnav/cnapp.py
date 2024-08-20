@@ -18,23 +18,40 @@ import sys
 import os
 import os.path
 import shutil
-import ConfigParser
+import configparser
 import tempfile
 import datetime as dt
 import re           # needed for field validation
 
 #import GUI stuff
-import Tkinter as tk
-import ttk
-import tkMessageBox as tMB
-import tkFileDialog as tFD
-import tkFont
+
+# The Tkinter package from Python 2 has been renamed to tkinter in Python 3, as well as other modules related to it.
+# 
+# Here is a list of renamed modules:
+# 
+# Tkinter → tkinter
+# tkMessageBox → tkinter.messagebox
+# tkColorChooser → tkinter.colorchooser
+# tkFileDialog → tkinter.filedialog
+# tkCommonDialog → tkinter.commondialog
+# tkSimpleDialog → tkinter.simpledialog
+# tkFont → tkinter.font
+# Tkdnd → tkinter.dnd
+# ScrolledText → tkinter.scrolledtext
+# Tix → tkinter.tix
+# ttk → tkinter.ttk
+
+import tkinter as tk
+import tkinter.ttk as ttk
+import tkinter.messagebox as tMB
+import tkinter.filedialog as tFD
+import tkinter.font as TkFont
 
 # import celnav classes - will be customized to interact with GUI
-import celnav
+import celnav.celnav as celnav
 
 # import cncfg to get access to ConfigParser object:
-import cncfg
+import celnav.cncfg as cncfg
 
 #-------------------------------------------------------------------------------------
 # The following parameters can be overwritten in the INI_FILE read by module
@@ -87,7 +104,7 @@ if cncfg.cncfg.has_option(SECTION_ID, 'INITIAL_LON'):
 #------------ end ini-file stuff -------------------------------------------------
 
 # import misc tools (e.g. generic print overloader)
-import classprint
+import celnav.classprint as classprint
 
 # TODO: global style definitions
 

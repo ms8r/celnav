@@ -4,12 +4,13 @@ INI_FILE sections are assumed to equal module names but this is not strictly
 neccessary as long as the modules using cncfg look for the right stuff.
 """
 
-import ConfigParser, os
-import tkMessageBox as tMB
+import configparser
+import os
+import tkinter.messagebox as tMB
 INI_DIR = os.path.expandvars("$HOME/.celnav")
 INI_FILE = 'celnav.ini'
 
-cncfg = ConfigParser.ConfigParser()
+cncfg = configparser.ConfigParser()
 
 def build_cfg():
 
@@ -33,5 +34,5 @@ if __name__ == '__main__':
     for s in cncfg.sections():
         for o in cncfg.options(s):
             v = cncfg.get(s, o)
-            print s, o, v
+            print(s, o, v)
 

@@ -20,7 +20,7 @@ import datetime as dt
 import os
 import re
 import tempfile
-import ConfigParser
+import configparser
 
 # import PyEphem (see http://rhodesmill.org/pyephem/index.html)
 import ephem
@@ -32,13 +32,13 @@ bodyList = ["Sun LL", "Sun UL", "Moon LL", "Moon UL", "Venus", "Mars", "Jupiter"
 # star object for the star name passed to navStar; also provides dictionary
 # navStarNum that maps the numbers of 57 navigational stars + Polaris to their
 # names.
-import starcat
+import celnav.starcat as starcat
 
 starList = list(starcat.navStarNum.keys())
 starList.sort()
 
 # import cncfg to get access to ConfigParser obejct:
-import cncfg
+import celnav.cncfg as cncfg
 
 #-----------------------------------------------------------------------------
 # The following three constants can be overritten in celnav.ini in section
@@ -69,7 +69,7 @@ START_UP_LOG_MSG = ('### celnav.STAR_CALC == \'%s\' ###  starcat.DB_SOURCE == \'
         % (STAR_CALC, starcat.DB_SOURCE))
 
 # import generic print overloader
-import classprint
+import celnav.classprint as classprint
 
 
 class Angle(classprint.AttrDisplay):
@@ -1402,28 +1402,28 @@ if __name__ == '__main__':
     #    doctest.testmod( )
 
     pf = PlanetFinder(lat = -18, lon = -179, ut = (2013, 7, 25, 3, 30, 0))
-    print 'Twilight:'
+    print ('Twilight:')
     for key in pf.twilight:
         try:
-            print '%s:  %s' % (key, dt.datetime(*pf.twilight[key]).ctime())
+            print ('%s:  %s' % (key, dt.datetime(*pf.twilight[key]).ctime()))
         except:
-            print '%s: None' % key
+            print ('%s: None' % key)
 
     print
-    print 'Planets:'
+    print ('Planets:')
     for p in pf.planets:
         for key in ['rise', 'set', 'mer_pass']:
             try:
-                print '%s - %s: %s' % (p, key, dt.datetime(*pf.planets[p][key]).ctime())
+                print ('%s - %s: %s' % (p, key, dt.datetime(*pf.planets[p][key]).ctime()))
             except:
-                print '%s - %s: None' % (p, key)
+                print ('%s - %s: None' % (p, key))
         for key in ['rise_az', 'set_az', 'mer_pass_alt']:
             try:
-                print '%s - %s: %d' % (p, key, int(round(pf.planets[p][key].decD)))
+                print ('%s - %s: %d' % (p, key, int(round(pf.planets[p][key].decD))))
             except:
-                print '%s - %s: None' % (p, key)
+                print ('%s - %s: None' % (p, key))
 
-    print pf.observer.date
+    print (pf.observer.date)
 
     """
     for STAR_CALC in ['aa', 'ephem']:
@@ -1468,13 +1468,13 @@ if __name__ == '__main__':
     a = AlmanacPage((2012, 9, 17))
 
     for h in range(24):
-        print a.sun['dec'][h]
+        print (a.sun['dec'][h])
 
     a.date = (2012, 5, 22)
     a.updateData()
 
     for h in range(24):
-        print a.sun['dec'][h]
+        print (a.sun['dec'][h])
 
     r = SunMoonRiseSet(lat = 0, lon = 0, date = (2012, 9, 17))
 
@@ -1500,14 +1500,11 @@ if __name__ == '__main__':
         print
         s.lopSightIndex = 0
         s.calcIcAz()
-        print s
-        print
+        print (s, "\n")
         for a in s.sightList:
-            print a
+            print (a)
 
     f.calc2LOPFix()
 
-    print
-    print f
-    print
+    print ("\n", f, "\n")
     """

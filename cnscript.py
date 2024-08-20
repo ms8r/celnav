@@ -5,7 +5,7 @@ see doc strings in celnav.py and cnapp.py for details
 """
 
 import celnav.cnapp as cc
-import Tkinter as tk
+import tkinter as tk
     
 app = cc.Application(tk.Tk())
 app.winfo_toplevel().title( "%s %s" % (cc.EXT_APP_NAME, 
